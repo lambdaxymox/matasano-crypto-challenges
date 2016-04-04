@@ -5,6 +5,7 @@ import qualified Data.ByteString.Base64 as Base64
 import qualified Data.ByteString.Char8  as BSC8 (pack)
 import           Data.Char (chr)
 import           Data.Word
+import           Data.Maybe
 import           Data.Bits ((.|.))
 import           Text.Megaparsec (many, parseMaybe, hexDigitChar)
 
@@ -179,6 +180,16 @@ extractHexBytes s = case (extractHexDigits s) of
 base64 :: ByteString -> ByteString
 base64 = Base64.encode
 
-secret :: String
-secret = "49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d"
- 
+-- | The secret string as a string of hexadecimal digits.
+secret' :: String
+secret' = "49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d"
+
+-- | The actual string after the hexadecimal has been parsed and packed.
+secret :: ByteString
+secret = BS.pack $ fromJust $ extractHexBytes secret'
+
+secretBase64 :: ByteString
+secretBase64 = BSC8.pack "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t"
+
+-- | Challenge 1
+challenge1 = base64 secret
