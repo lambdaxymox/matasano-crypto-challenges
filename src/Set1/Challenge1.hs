@@ -1,12 +1,11 @@
 {-# LANGUAGE FlexibleInstances #-}
 
-import           Data.ByteString        as BS                    hiding (map, reverse, foldl)
-import qualified Data.ByteString.Base64 as Base64
-import qualified Data.ByteString.Char8  as BSC8 (pack)
-import           Data.Char (chr)
+import           Data.ByteString                                  as BS          hiding (map, reverse, foldl)
+import qualified Data.ByteString.Base64                           as Base64
+import qualified Data.ByteString.Char8                            as BSC8 (pack)
 import           Data.Word
 import           Data.Maybe
-import           Data.Bits ((.|.))
+import qualified Data.Bits                                        as Bits ((.|.), xor) 
 import           Text.Megaparsec (many, parseMaybe, hexDigitChar)
 
 
@@ -193,3 +192,4 @@ secretBase64 = BSC8.pack "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG
 
 -- | Challenge 1
 challenge1 = base64 secret
+
