@@ -2,6 +2,7 @@ module Set1.Challenge1
     (
         challenge1,
         secretBase64,
+        secret,
     )
     where
 
@@ -25,5 +26,3 @@ secretBase64 = BSC8.pack "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG
 
 -- | Challenge 1
 challenge1 = base64 secret
-
-
