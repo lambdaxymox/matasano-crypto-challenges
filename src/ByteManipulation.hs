@@ -1,5 +1,22 @@
 {-# LANGUAGE FlexibleInstances #-}
 
+{- |
+Module: MatasanoCryptoChallenges.ByteManipulation
+Description: Utility functions for manipulating strings and hexadecimal digits.
+
+This module contains utility functions for manipulating ByteStrings and for building 
+cryptographic ciphers and cryptanalysis functions. It is primarily low-level tooling 
+for extracting hexadecimal digits from strings and bitwise arithmetic operation on ByteStrings.
+-}
+module MatasanoCryptoChallenges.ByteManipulation
+    (
+        extractHexBytes,
+        base64,
+        xor,
+        maybeXor,
+    )
+    where
+
 import qualified Data.ByteString                                  as BS
 import qualified Data.ByteString.Base64                           as Base64
 import qualified Data.ByteString.Char8                            as BSC8 (pack)
@@ -33,11 +50,6 @@ instance Show HexDigit where
         HexE -> "E"
         HexF -> "F"
 
-data HexDigits = HexDigits { hexDigits :: [HexDigit] }
-    deriving (Eq)
-
-fromHexDigit :: HexDigit -> HexDigits
-fromHexDigit = HexDigits . return
 
 class ToHexDigit a where
     toHexDigit :: a -> Maybe HexDigit
@@ -96,8 +108,16 @@ instance ToHexDigit String where
             "f" -> Just HexF
             _   -> Nothing
 
+data HexDigits = HexDigits { hexDigits :: [HexDigit] }
+    deriving (Eq)
+
+
 instance Show HexDigits where
     show hex =  foldl (\acc d -> acc ++ show d) "0x" $ hexDigits hex
+
+
+fromHexDigit :: HexDigit -> HexDigits
+fromHexDigit = HexDigits . return
 
 
 class HexRep a where
@@ -171,48 +191,31 @@ extractHexDigits s = case (maybeHex s) of
         go s = fmap HexDigits $ sequence $ map (toHexDigit) s
 
 
+
+
+-- Utility functions for manipulating strings and hexadecimal digits.
+
+-- | The `extractHexBytes` function extracts raw hexadecimal digits from a string. 
 extractHexBytes :: String -> Maybe [Word8]
 extractHexBytes s = case (extractHexDigits s) of 
                     Just hex -> fromHexRep hex
                     Nothing  -> Nothing
 
 
+-- | The 'base64' function encodes a ByteString into base64.
 base64 :: BS.ByteString -> BS.ByteString
 base64 = Base64.encode
 
--- | The secret string as a string of hexadecimal digits.
-secret' :: String
-secret' = "49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736f6e6f7573206d757368726f6f6d"
 
--- | The actual string after the hexadecimal has been parsed and packed.
-secret :: BS.ByteString
-secret = BS.pack $ fromJust $ extractHexBytes secret'
-
-secretBase64 :: BS.ByteString
-secretBase64 = BSC8.pack "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t"
-
--- | Challenge 1
-challenge1 = base64 secret
-
--- Raw bytestring xor.
+-- | The 'xor' function takes two ByteStrings and computes their bitwise exclusive-or.
+--   This is the unsafe version since it does not check whether the ByteStrings are of equal
+--   length.
 xor :: BS.ByteString -> BS.ByteString -> BS.ByteString
 xor bs1 bs2 = BS.pack $ BS.zipWith (Bits.xor) bs1 bs2
 
--- | XOR two bytestrings of equal length. Otherwise do nothing.
+
+-- | 'maybeXor' exclusive-or's together two ByteStrings of equal length. Otherwise it returns nothing.
 maybeXor :: BS.ByteString -> BS.ByteString -> Maybe BS.ByteString
 maybeXor bs1 bs2 
     | BS.length bs1 == BS.length bs2 = Just $ xor bs1 bs2
     | otherwise                      = Nothing
-
-
-xorSecret1 :: BS.ByteString
-xorSecret1 = BS.pack $ fromJust $ extractHexBytes "1c0111001f010100061a024b53535009181c"
-
-xorSecret2 :: BS.ByteString
-xorSecret2 = BS.pack $ fromJust $ extractHexBytes "686974207468652062756c6c277320657965"
-
-xoredSecret :: BS.ByteString
-xoredSecret = BS.pack $ fromJust $ extractHexBytes "746865206b696420646f6e277420706c6179"
-
-
-challenge2 = xorSecret1 `xor` xorSecret2
