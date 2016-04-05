@@ -8,7 +8,7 @@ This module contains utility functions for manipulating ByteStrings and for buil
 cryptographic ciphers and cryptanalysis functions. It is primarily low-level tooling 
 for extracting hexadecimal digits from strings and bitwise arithmetic operation on ByteStrings.
 -}
-module MatasanoCryptoChallenges.ByteManipulation
+module Util.ByteManipulation
     (
         extractHexBytes,
         base64,
