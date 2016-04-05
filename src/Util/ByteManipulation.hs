@@ -14,17 +14,22 @@ module Util.ByteManipulation
         base64,
         xor,
         maybeXor,
+        c2w,
+        w2c,
+        repChar,
+        repWord8,
     )
     where
 
 import qualified Data.ByteString                                  as BS
 import qualified Data.ByteString.Base64                           as Base64
-import qualified Data.ByteString.Char8                            as BSC8 (pack)
+import qualified Data.ByteString.Char8                            as BSC8 (pack, replicate)
 import           Data.Word
 import           Data.Maybe
 import qualified Data.Bits                                        as Bits (xor) 
 import           Data.Bits ((.|.))
 import           Text.Megaparsec (many, parseMaybe, hexDigitChar)
+import qualified Data.ByteString.Internal                         as BS (c2w, w2c)
 
 
 data HexDigit = Hex0 | Hex1 | Hex2 | Hex3 | Hex4 | Hex5 | Hex6 | Hex7 
@@ -194,6 +199,21 @@ extractHexDigits s = case (maybeHex s) of
 
 
 -- Utility functions for manipulating strings and hexadecimal digits.
+
+-- | Convert between Char and Word8 and back.
+c2w :: Char -> Word8
+c2w = BS.c2w
+
+w2c :: Word8 -> Char
+w2c = BS.w2c
+
+
+repChar :: Char -> Int -> BS.ByteString
+repChar ch l = BSC8.replicate l ch
+
+repWord8 :: Word8 -> Int -> BS.ByteString
+repWord8 word l = BS.replicate l word
+
 
 -- | The `extractHexBytes` function extracts raw hexadecimal digits from a string. 
 extractHexBytes :: String -> Maybe [Word8]

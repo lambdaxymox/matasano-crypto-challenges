@@ -12,21 +12,10 @@ import           Util.ByteManipulation
 import           Data.Maybe
 import qualified Data.ByteString          as BS
 import qualified Data.ByteString.Char8    as BSC8
-import qualified Data.ByteString.Internal as BS (c2w, w2c)
 import qualified Data.Map.Strict          as Map
 import           Data.Word
 import           Data.List (maximumBy, minimumBy)
 import           Data.Char (chr, toUpper)
-
-
-c2w :: Char -> Word8
-c2w = BS.c2w
-
-w2c :: Word8 -> Char
-w2c = BS.w2c
-
-repChar :: Char -> BS.ByteString
-repChar ch = BSC8.replicate (BS.length secret) ch
 
 
 frequencyTable :: Map.Map Char Double
@@ -93,7 +82,7 @@ secret :: BS.ByteString
 secret = BS.pack $ fromJust $ extractHexBytes "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
 
 candidates :: Map.Map Char BS.ByteString
-candidates = Map.fromList $ map (\ch -> (ch, secret `xor` repChar ch)) "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+candidates = Map.fromList $ map (\ch -> (ch, secret `xor` repChar ch (BS.length secret))) "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 
 answerS :: BS.ByteString
@@ -107,5 +96,5 @@ challenge3 = (bestChar, bestString)
     where
         scores     = Map.map score candidates
         bestChar   = fst $ maximumBy (\x y -> compare (snd x) (snd y)) $ Map.toList scores 
-        bestString = secret `xor` repChar bestChar
+        bestString = secret `xor` repChar bestChar (BS.length secret)
 
