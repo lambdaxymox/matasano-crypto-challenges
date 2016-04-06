@@ -23,6 +23,7 @@ module Util.ByteManipulation
     )
     where
 
+import           Prelude                hiding (or, and)
 import           Util.Hexadecimal
 import qualified Data.ByteString                                  as BS
 import qualified Data.ByteString.Base64                           as Base64
@@ -32,7 +33,7 @@ import qualified Data.ByteString.Lazy                             as BSL
 import           Data.Word
 import           Data.Maybe
 import           Data.Monoid
-import qualified Data.Bits                                        as Bits (xor) 
+import qualified Data.Bits                                        as Bits (xor, (.|.), (.&.)) 
 import           Data.Bits ((.|.))
 import           Text.Megaparsec (many, parseMaybe, hexDigitChar)
 import           Text.Printf
@@ -70,11 +71,30 @@ base64 = Base64.encode
 xor :: BS.ByteString -> BS.ByteString -> BS.ByteString
 xor bs1 bs2 = BS.pack $ BS.zipWith (Bits.xor) bs1 bs2
 
+-- | Other bitwise arithmetic functions.
+or :: BS.ByteString -> BS.ByteString -> BS.ByteString
+or bs1 bs2 = BS.pack $ BS.zipWith (Bits..|.) bs1 bs2
+
+and :: BS.ByteString -> BS.ByteString -> BS.ByteString
+and bs1 bs2 = BS.pack $ BS.zipWith (Bits..&.) bs1 bs2
+
 
 -- | 'maybeXor' exclusive-or's together two ByteStrings of equal length. Otherwise it returns nothing.
 maybeXor :: BS.ByteString -> BS.ByteString -> Maybe BS.ByteString
 maybeXor bs1 bs2 
     | BS.length bs1 == BS.length bs2 = Just $ xor bs1 bs2
+    | otherwise                      = Nothing
+
+
+maybeAnd :: BS.ByteString -> BS.ByteString -> Maybe BS.ByteString
+maybeAnd bs1 bs2
+    | BS.length bs1 == BS.length bs2 = Just $ and bs1 bs2
+    | otherwise                      = Nothing
+
+
+maybeOr :: BS.ByteString -> BS.ByteString -> Maybe BS.ByteString
+maybeOr bs1 bs2
+    | BS.length bs1 == BS.length bs2 = Just $ or bs1 bs2
     | otherwise                      = Nothing
 
 
