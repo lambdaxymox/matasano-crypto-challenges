@@ -29,6 +29,7 @@ answerS = BSC8.pack "Cooking MC's like a pound of bacon"
 answer :: (Char, BS.ByteString)
 answer = ('X', answerS)
 
+-- | Challenge 3
 challenge3 :: (Char, BS.ByteString)
 challenge3 = (bestChar, bestString)
     where

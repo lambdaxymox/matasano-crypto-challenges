@@ -4,18 +4,20 @@ module Crypto.FrequencyAnalysis
         computeWordCounts,
         computeFreqs,
         computeScore,
-        score,
+        score, 
+        mostLikelyChar,
     )
     where
 
 import           Util.ByteManipulation
 import           Data.Maybe
-import qualified Data.ByteString          as BS
-import qualified Data.ByteString.Char8    as BSC8
-import qualified Data.Map.Strict          as Map
+import qualified Data.ByteString                  as BS
+import qualified Data.ByteString.Char8            as BSC8
+import qualified Data.Map.Strict                  as Map
 import           Data.Word
 import           Data.List (maximumBy, minimumBy)
 import           Data.Char (chr, toUpper)
+
 
 
 frequencyTable :: Map.Map Char Double
@@ -71,8 +73,20 @@ computeScore table =  Map.foldrWithKey variance 0 table
         term key val = case Map.lookup key frequencyTableW8 of 
             -- If value is not present, we're further away from being an English sentence.
             Nothing   -> 0.0 
-            Just mean -> (val - mean)^2
+            Just mean -> (val - mean)*(val - mean)
 
 
+-- | The 'score' function calculates the variance of a string with respect to the English language
+--   frequency table.
 score :: BS.ByteString -> Double
 score = computeScore . computeFreqs
+
+
+-- | Assuming a ciphertext is single character XORed, the 'mostLikelyChar' function guesses the most
+--   likely used character.
+mostLikelyChar :: BS.ByteString -> ((Char, BS.ByteString), Double)
+mostLikelyChar st = maximumBy (\p1 p2 -> compare (snd p1) (snd p2) ) scores
+    where
+        scores = map (\ch -> ((ch, cipherText ch), score $ cipherText ch)) "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        cipherText ch = st `xor` (repChar ch (BS.length st))
+

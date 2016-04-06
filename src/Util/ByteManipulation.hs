@@ -1,7 +1,7 @@
 {-# LANGUAGE FlexibleInstances #-}
 
 {- |
-Module: MatasanoCryptoChallenges.ByteManipulation
+Module: Util.ByteManipulation
 Description: Utility functions for manipulating strings and hexadecimal digits.
 
 This module contains utility functions for manipulating ByteStrings and for building 
@@ -18,6 +18,9 @@ module Util.ByteManipulation
         w2c,
         repChar,
         repWord8,
+        bslines,
+        readLines,
+        singleCharXor
     )
     where
 
@@ -30,6 +33,7 @@ import qualified Data.Bits                                        as Bits (xor)
 import           Data.Bits ((.|.))
 import           Text.Megaparsec (many, parseMaybe, hexDigitChar)
 import qualified Data.ByteString.Internal                         as BS (c2w, w2c)
+import           System.IO
 
 
 data HexDigit = Hex0 | Hex1 | Hex2 | Hex3 | Hex4 | Hex5 | Hex6 | Hex7 
@@ -239,3 +243,20 @@ maybeXor :: BS.ByteString -> BS.ByteString -> Maybe BS.ByteString
 maybeXor bs1 bs2 
     | BS.length bs1 == BS.length bs2 = Just $ xor bs1 bs2
     | otherwise                      = Nothing
+
+
+singleCharXor :: Char -> BS.ByteString -> BS.ByteString
+singleCharXor ch st = st `xor` repChar ch (BS.length st) 
+
+
+bslines :: BS.ByteString -> [BS.ByteString]
+bslines = BS.split (c2w '\n')
+
+
+readLines :: String -> IO [BS.ByteString]
+readLines fname = do
+    file     <- openFile fname ReadMode
+    contents <- BS.hGetContents file
+    strings  <- return $ bslines contents
+    hClose file 
+    return strings
