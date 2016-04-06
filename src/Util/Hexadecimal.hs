@@ -144,7 +144,7 @@ instance HexRep [Word8] where
             fromHexRep' acc (lower:upper:digits) = fromHexRep' ( (lowerNibble lower .|. upperNibble upper) : acc) digits
 
 
--- | The 'ToHex' class is for producing hexadecimal string representations of data.
+-- | The 'ToHexadecimal' class is for producing hexadecimal string representations of data.
 class ToHexadecimal a where
     toHex :: a -> String
 
@@ -219,14 +219,14 @@ extractHexDigits s = case (maybeHex s) of
         go s = fmap HexDigits $ sequence $ map (toHexDigit) s
 
 
--- | The `maybeExtractHexBytes` function extracts raw hexadecimal digits from a string. 
+-- | The 'maybeExtractHexBytes' function extracts raw hexadecimal digits from a string. 
 maybeExtractHexBytes :: String -> Maybe [Word8]
 maybeExtractHexBytes st = case (extractHexDigits st) of 
                     Just hex -> fromHexRep hex
                     Nothing  -> Nothing
 
 
--- | The `extractHexBytes` function extracts raw hexadecimal digits from a string. 
+-- | The 'extractHexBytes' function extracts raw hexadecimal digits from a string. 
 extractHexBytes :: String -> [Word8]
 extractHexBytes = fromJust . maybeExtractHexBytes
 

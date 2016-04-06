@@ -8,7 +8,8 @@ module Set1.Challenge4
     where
 
 import Util (extractHexBytes)
-import Util.ByteManipulation (xorWithChar, readLines)
+import Util.ByteManipulation (xorWithChar)
+import Util.IO (readLines)
 import Crypto.FrequencyAnalysis
 import Data.ByteString                           as BS
 import Data.ByteString.Char8                     as BSC8

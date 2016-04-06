@@ -6,7 +6,7 @@ Description: Utility functions for manipulating strings and hexadecimal digits.
 
 This module contains utility functions for manipulating ByteStrings and for building 
 cryptographic ciphers and cryptanalysis functions. It is primarily low-level tooling 
-for extracting hexadecimal digits from strings and bitwise arithmetic operation on ByteStrings.
+for manipulating strings and bitwise arithmetic operations on ByteStrings.
 -}
 module Util.ByteManipulation
     (
@@ -16,7 +16,6 @@ module Util.ByteManipulation
         repChar,
         repWord8,
         bslines,
-        readLines,
         xorWithChar,
         xorWithKey,
         repStr,
@@ -38,7 +37,7 @@ import           Data.Bits ((.|.))
 import           Text.Megaparsec (many, parseMaybe, hexDigitChar)
 import           Text.Printf
 import qualified Data.ByteString.Internal                         as BS (c2w, w2c)
-import           System.IO
+
 
 
 -- Utility functions for manipulating strings and hexadecimal digits.
@@ -79,11 +78,13 @@ maybeXor bs1 bs2
     | otherwise                      = Nothing
 
 
--- | The 'singleCharXor'
+-- | 'xorWithChar' exclusive-or's a string with a string of repeating characters
+--   of length equal to the original string. 
 xorWithChar :: Char -> BS.ByteString -> BS.ByteString
 xorWithChar ch st = st `xor` repChar ch (BS.length st) 
 
 
+-- | The function 'xorWithKey' exclusive-or's 
 xorWithKey :: BS.ByteString -> BS.ByteString -> BS.ByteString
 xorWithKey st key = repKey `xor` st
     where
@@ -94,12 +95,3 @@ xorWithKey st key = repKey `xor` st
 
 bslines :: BS.ByteString -> [BS.ByteString]
 bslines = BS.split (c2w '\n')
-
-
-readLines :: String -> IO [BS.ByteString]
-readLines fname = do
-    file     <- openFile fname ReadMode
-    contents <- BS.hGetContents file
-    strings  <- return $ bslines contents
-    hClose file 
-    return strings
