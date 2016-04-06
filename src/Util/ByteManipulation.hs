@@ -65,37 +65,49 @@ base64 :: BS.ByteString -> BS.ByteString
 base64 = Base64.encode
 
 
+bitwiseOp :: (Word8 -> Word8 -> Word8) -> BS.ByteString -> BS.ByteString -> BS.ByteString
+bitwiseOp op bs1 bs2 = BS.pack $ BS.zipWith op bs1 bs2
+
 -- | The 'xor' function takes two ByteStrings and computes their bitwise exclusive-or.
 --   This is the unsafe version since it does not check whether the ByteStrings are of equal
 --   length.
 xor :: BS.ByteString -> BS.ByteString -> BS.ByteString
-xor bs1 bs2 = BS.pack $ BS.zipWith (Bits.xor) bs1 bs2
+xor = bitwiseOp (Bits.xor)
 
 -- | Other bitwise arithmetic functions.
+
+-- | The 'and' function takes two ByteStrings and computes their bitwise and.
+--   This is the unsafe version since it does not check whether the ByteStrings are of equal
+--   length.
 or :: BS.ByteString -> BS.ByteString -> BS.ByteString
-or bs1 bs2 = BS.pack $ BS.zipWith (Bits..|.) bs1 bs2
+or = bitwiseOp (Bits..|.)
 
+-- | The 'or' function takes two ByteStrings and computes their bitwise or.
+--   This is the unsafe version since it does not check whether the ByteStrings are of equal
+--   length.
 and :: BS.ByteString -> BS.ByteString -> BS.ByteString
-and bs1 bs2 = BS.pack $ BS.zipWith (Bits..&.) bs1 bs2
+and = bitwiseOp (Bits..&.)
 
 
--- | 'maybeXor' exclusive-or's together two ByteStrings of equal length. Otherwise it returns nothing.
+maybeOp :: (BS.ByteString -> BS.ByteString -> BS.ByteString) 
+            -> BS.ByteString 
+            -> BS.ByteString 
+            -> Maybe BS.ByteString
+maybeOp op bs1 bs2
+    | BS.length bs1 == BS.length bs2 = Just $ op bs1 bs2
+    | otherwise                      = Nothing
+
+-- | 'maybeXor' bitwise exclusive-or's together two ByteStrings of equal length. Otherwise it returns nothing.
 maybeXor :: BS.ByteString -> BS.ByteString -> Maybe BS.ByteString
-maybeXor bs1 bs2 
-    | BS.length bs1 == BS.length bs2 = Just $ xor bs1 bs2
-    | otherwise                      = Nothing
+maybeXor = maybeOp xor
 
-
+-- | 'maybeAnd' bitwise and's together two ByteStrings of equal length. Otherwise it returns nothing.
 maybeAnd :: BS.ByteString -> BS.ByteString -> Maybe BS.ByteString
-maybeAnd bs1 bs2
-    | BS.length bs1 == BS.length bs2 = Just $ and bs1 bs2
-    | otherwise                      = Nothing
+maybeAnd = maybeOp or
 
-
+-- | 'maybeOr' bitwise or's together two ByteStrings of equal length. Otherwise it returns nothing.
 maybeOr :: BS.ByteString -> BS.ByteString -> Maybe BS.ByteString
-maybeOr bs1 bs2
-    | BS.length bs1 == BS.length bs2 = Just $ or bs1 bs2
-    | otherwise                      = Nothing
+maybeOr = maybeOp and
 
 
 -- | 'xorWithChar' exclusive-or's a string with a string of repeating characters
@@ -104,7 +116,10 @@ xorWithChar :: Char -> BS.ByteString -> BS.ByteString
 xorWithChar ch st = st `xor` repChar ch (BS.length st) 
 
 
--- | The function 'xorWithKey' exclusive-or's 
+-- | The function 'xorWithKey' exclusive-or's a bytestring together with a key that is repeated
+--   as many times as needed to match the length of the bytestring. If the string length is not an even multiple
+--   of the key length, the remainder of the string is exlusive-ored with with a prefix of the key to pad the 
+--   key string's length to match the encoded string length. 
 xorWithKey :: BS.ByteString -> BS.ByteString -> BS.ByteString
 xorWithKey st key = repKey `xor` st
     where
@@ -113,5 +128,6 @@ xorWithKey st key = repKey `xor` st
         repKey    = repByteStr repCount key <> BS.take remainder key
 
 
+-- | Splits a ByteString delimited by newlines.
 bslines :: BS.ByteString -> [BS.ByteString]
 bslines = BS.split (c2w '\n')
