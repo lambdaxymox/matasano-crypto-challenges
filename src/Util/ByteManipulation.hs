@@ -20,24 +20,26 @@ module Util.ByteManipulation
         xorWithKey,
         repStr,
         repByteStr,
+        hammingDistance,
+        hammingDistanceBS,
     )
     where
 
-import           Prelude                hiding (or, and)
+import           Prelude                 hiding (or, and)
 import           Util.Hexadecimal
-import qualified Data.ByteString                                  as BS
-import qualified Data.ByteString.Base64                           as Base64
-import qualified Data.ByteString.Char8                            as BSC8
-import qualified Data.ByteString.Builder                          as BS
-import qualified Data.ByteString.Lazy                             as BSL
+import qualified Data.ByteString         as BS
+import qualified Data.ByteString.Base64  as Base64
+import qualified Data.ByteString.Char8   as BSC8
+import qualified Data.ByteString.Builder as BS
+import qualified Data.ByteString.Lazy    as BSL
 import           Data.Word
 import           Data.Maybe
 import           Data.Monoid
-import qualified Data.Bits                                        as Bits (xor, (.|.), (.&.)) 
-import           Data.Bits ((.|.))
-import           Text.Megaparsec (many, parseMaybe, hexDigitChar)
+import qualified Data.Bits                as Bits (Bits(..)) 
+import           Data.Bits                (Bits, (.|.), (.&.))
+import           Text.Megaparsec          (many, parseMaybe, hexDigitChar)
 import           Text.Printf
-import qualified Data.ByteString.Internal                         as BS (c2w, w2c)
+import qualified Data.ByteString.Internal as BS (c2w, w2c)
 
 
 
@@ -165,3 +167,18 @@ andWithKey = opWithKey and
 -- | Splits a ByteString delimited by newlines.
 bslines :: BS.ByteString -> [BS.ByteString]
 bslines = BS.split (c2w '\n')
+
+
+hammingDistance :: (Bits a, Num a) => a -> a -> Int
+hammingDistance x y =  loop (x `Bits.xor` y) 0
+    where
+        loop 0   dist = dist
+        loop val dist = 
+            let
+                val'  = val .&. (val - 1)
+                dist' = dist + 1
+            in 
+                loop val' dist'
+
+hammingDistanceBS :: BS.ByteString -> BS.ByteString -> Int
+hammingDistanceBS st1 st2 = sum $ BS.zipWith (\ch1 ch2 -> hammingDistance ch1 ch2) st1 st2
