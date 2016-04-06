@@ -7,12 +7,12 @@ module Set1.Challenge4
     )
     where
 
-import Util.ByteManipulation (extractHexBytes, singleCharXor, readLines)
+import Util (extractHexBytes)
+import Util.ByteManipulation (xorWithChar, readLines)
 import Crypto.FrequencyAnalysis
 import Data.ByteString                           as BS
 import Data.ByteString.Char8                     as BSC8
 import Data.List
-import Data.Maybe
 
 
 secret :: IO [BS.ByteString]
@@ -31,9 +31,9 @@ cipherText = obtain <$> secret
 plainText :: IO (Char, BS.ByteString)
 plainText = do
     (ch, st)       <- cipherText
-    let hexSt      = singleCharXor ch st
+    let hexSt      = xorWithChar ch st
     let unpackedSt = BSC8.unpack hexSt
-    return (ch, BS.pack $ fromJust $ extractHexBytes unpackedSt)
+    return (ch, BS.pack $ extractHexBytes unpackedSt)
 
 
 challenge4 :: IO (Char, BS.ByteString)

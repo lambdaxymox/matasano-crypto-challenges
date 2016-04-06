@@ -10,6 +10,7 @@ module Crypto.FrequencyAnalysis
     where
 
 import           Util.ByteManipulation
+import           Util.Hexadecimal
 import           Data.Maybe
 import qualified Data.ByteString                  as BS
 import qualified Data.ByteString.Char8            as BSC8

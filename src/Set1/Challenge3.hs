@@ -7,9 +7,9 @@ module Set1.Challenge3
     )
     where
 
+import           Util (extractHexBytes)
 import           Util.ByteManipulation
 import           Crypto.FrequencyAnalysis
-import           Data.Maybe (fromJust)
 import qualified Data.ByteString          as BS
 import qualified Data.ByteString.Char8    as BSC8
 import qualified Data.Map.Strict          as Map
@@ -17,7 +17,7 @@ import           Data.List (maximumBy, minimumBy)
 
 
 secret :: BS.ByteString
-secret = BS.pack $ fromJust $ extractHexBytes "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
+secret = BS.pack $ extractHexBytes "1b37373331363f78151b7f2b783431333d78397828372d363c78373e783a393b3736"
 
 candidates :: Map.Map Char BS.ByteString
 candidates = Map.fromList $ map (\ch -> (ch, secret `xor` repChar ch (BS.length secret))) "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

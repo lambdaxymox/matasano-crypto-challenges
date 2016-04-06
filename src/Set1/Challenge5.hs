@@ -6,7 +6,8 @@ module Set1.Challenge5
     )
     where
 
-import           Util.ByteManipulation (xorWithKey, hexBS, ToHexadecimal(..))
+import           Util (ToHexadecimal(..))
+import           Util.ByteManipulation (xorWithKey)
 import qualified Data.ByteString       as BS
 import qualified Data.ByteString.Char8 as BSC8
 
@@ -17,7 +18,7 @@ secretKey :: BS.ByteString
 secretKey = BSC8.pack "ICE"
 
 answer :: BS.ByteString
-answer = secret `xorWithKey` secretKey
+answer = BSC8.pack "0b3637272a2b2e63622c2e69692a23693a2a3c6324202d623d63343c2a26226324272765272a282b2f20430a652e2c652a3124333a653e2b2027630c692b20283165286326302e27282f"
 
 challenge5 :: BS.ByteString
-challenge5 = BSC8.pack $ toHex answer
+challenge5 = BSC8.pack $ toHex $ secret `xorWithKey` secretKey

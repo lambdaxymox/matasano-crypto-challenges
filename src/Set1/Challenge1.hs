@@ -6,6 +6,7 @@ module Set1.Challenge1
     )
     where
 
+import           Util (extractHexBytes)
 import           Util.ByteManipulation
 import           Data.Maybe
 import qualified Data.ByteString          as BS
@@ -18,7 +19,7 @@ secret' = "49276d206b696c6c696e6720796f757220627261696e206c696b65206120706f69736
 
 -- | The actual string after the hexadecimal has been parsed and packed.
 secret :: BS.ByteString
-secret = BS.pack $ fromJust $ extractHexBytes secret'
+secret = BS.pack $ extractHexBytes secret'
 
 -- | The answer to the puzzle packed into a ByteString.
 secretBase64 :: BS.ByteString
