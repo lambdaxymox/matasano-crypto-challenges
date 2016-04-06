@@ -110,22 +110,56 @@ maybeOr :: BS.ByteString -> BS.ByteString -> Maybe BS.ByteString
 maybeOr = maybeOp and
 
 
+
+withChar :: Char -> BS.ByteString -> BS.ByteString
+withChar ch st = repChar ch (BS.length st)
+
+
+opWithChar :: (BS.ByteString -> BS.ByteString -> BS.ByteString)
+            -> Char
+            -> BS.ByteString 
+            -> BS.ByteString 
+opWithChar op ch st = st `op` withChar ch st
+
 -- | 'xorWithChar' exclusive-or's a string with a string of repeating characters
 --   of length equal to the original string. 
 xorWithChar :: Char -> BS.ByteString -> BS.ByteString
-xorWithChar ch st = st `xor` repChar ch (BS.length st) 
+xorWithChar = opWithChar xor
 
+-- | Other keyed arithmetic operation with repeating characters.
+andWithChar :: Char -> BS.ByteString -> BS.ByteString
+andWithChar = opWithChar and
+
+orWithChar :: Char -> BS.ByteString -> BS.ByteString
+orWithChar = opWithChar or
+
+
+withKey :: BS.ByteString -> BS.ByteString -> BS.ByteString
+withKey key st = repKey
+    where
+        repCount  = BS.length st `div` BS.length key
+        remainder = BS.length st `mod` BS.length key
+        repKey    = repByteStr repCount key <> BS.take remainder key
+
+opWithKey :: (BS.ByteString -> BS.ByteString -> BS.ByteString)
+            -> BS.ByteString 
+            -> BS.ByteString 
+            -> BS.ByteString
+opWithKey op st key = st `op` withKey key st
 
 -- | The function 'xorWithKey' exclusive-or's a bytestring together with a key that is repeated
 --   as many times as needed to match the length of the bytestring. If the string length is not an even multiple
 --   of the key length, the remainder of the string is exlusive-ored with with a prefix of the key to pad the 
 --   key string's length to match the encoded string length. 
 xorWithKey :: BS.ByteString -> BS.ByteString -> BS.ByteString
-xorWithKey st key = repKey `xor` st
-    where
-        repCount  = BS.length st `div` BS.length key
-        remainder = BS.length st `mod` BS.length key
-        repKey    = repByteStr repCount key <> BS.take remainder key
+xorWithKey = opWithKey xor
+
+-- | Other keyed arithmetic operations.
+orWithKey :: BS.ByteString -> BS.ByteString -> BS.ByteString
+orWithKey = opWithKey or
+
+andWithKey :: BS.ByteString -> BS.ByteString -> BS.ByteString
+andWithKey = opWithKey and
 
 
 -- | Splits a ByteString delimited by newlines.
