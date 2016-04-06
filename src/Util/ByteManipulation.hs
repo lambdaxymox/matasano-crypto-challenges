@@ -25,6 +25,7 @@ module Util.ByteManipulation
         repStr,
         repByteStr,
         hexBS,
+        ToHexadecimal(..),
     )
     where
 
@@ -39,6 +40,7 @@ import           Data.Monoid
 import qualified Data.Bits                                        as Bits (xor) 
 import           Data.Bits ((.|.))
 import           Text.Megaparsec (many, parseMaybe, hexDigitChar)
+import           Text.Printf
 import qualified Data.ByteString.Internal                         as BS (c2w, w2c)
 import           System.IO
 
@@ -153,6 +155,29 @@ instance HexRep [Word8] where
             fromHexRep' acc []                   = acc
             fromHexRep' acc (digit:[])           = (lowerNibble digit .|. upperNibble Hex0) : acc
             fromHexRep' acc (lower:upper:digits) = fromHexRep' ( (lowerNibble lower .|. upperNibble upper) : acc) digits
+
+
+-- | The 'ToHex' class is for producing hexadecimal string representations of data.
+class ToHexadecimal a where
+    toHex :: a -> String
+
+    toHexBS :: a -> BS.ByteString
+    toHexBS = BSC8.pack . toHex
+
+instance ToHexadecimal Word8 where
+    toHex ch = printf "%.2x" ch :: String
+
+instance ToHexadecimal Char where
+    toHex ch = printf "%.2x" ch :: String
+
+instance ToHexadecimal String where
+    toHex st = concatMap toHex st :: String
+
+instance ToHexadecimal [Word8] where
+    toHex st = concatMap toHex st :: String
+
+instance ToHexadecimal BS.ByteString where
+    toHex bs = toHex $ BS.unpack bs
 
 
 lowerNibble :: HexDigit -> Word8
