@@ -20,15 +20,22 @@ module Util.ByteManipulation
         repWord8,
         bslines,
         readLines,
-        singleCharXor
+        singleCharXor,
+        xorWithKey,
+        repStr,
+        repByteStr,
+        hexBS,
     )
     where
 
 import qualified Data.ByteString                                  as BS
 import qualified Data.ByteString.Base64                           as Base64
-import qualified Data.ByteString.Char8                            as BSC8 (pack, replicate)
+import qualified Data.ByteString.Char8                            as BSC8
+import qualified Data.ByteString.Builder                          as BS
+import qualified Data.ByteString.Lazy                             as BSL
 import           Data.Word
 import           Data.Maybe
+import           Data.Monoid
 import qualified Data.Bits                                        as Bits (xor) 
 import           Data.Bits ((.|.))
 import           Text.Megaparsec (many, parseMaybe, hexDigitChar)
@@ -200,8 +207,6 @@ extractHexDigits s = case (maybeHex s) of
         go s = fmap HexDigits $ sequence $ map (toHexDigit) s
 
 
-
-
 -- Utility functions for manipulating strings and hexadecimal digits.
 
 -- | Convert between Char and Word8 and back.
@@ -219,12 +224,29 @@ repWord8 :: Word8 -> Int -> BS.ByteString
 repWord8 word l = BS.replicate l word
 
 
+repStrBuilder :: Int -> BS.Builder -> BS.Builder
+repStrBuilder 0 builder = mempty
+repStrBuilder n builder = builder <> repStrBuilder (n-1) builder
+
+repByteStr :: Int -> BS.ByteString -> BS.ByteString
+repByteStr n bs = BSL.toStrict $ BS.toLazyByteString $ repStrBuilder n (BS.byteString bs)
+
+repStr :: Int -> String -> BS.ByteString
+repStr n st = BSL.toStrict $ BS.toLazyByteString $ repStrBuilder n (BS.string8 st)
+
+
 -- | The `extractHexBytes` function extracts raw hexadecimal digits from a string. 
 extractHexBytes :: String -> Maybe [Word8]
-extractHexBytes s = case (extractHexDigits s) of 
+extractHexBytes st = case (extractHexDigits st) of 
                     Just hex -> fromHexRep hex
                     Nothing  -> Nothing
 
+
+hex :: String -> [Word8]
+hex = map c2w
+
+hexBS :: BS.ByteString -> [Word8]
+hexBS = hex . BSC8.unpack
 
 -- | The 'base64' function encodes a ByteString into base64.
 base64 :: BS.ByteString -> BS.ByteString
@@ -247,6 +269,14 @@ maybeXor bs1 bs2
 
 singleCharXor :: Char -> BS.ByteString -> BS.ByteString
 singleCharXor ch st = st `xor` repChar ch (BS.length st) 
+
+
+xorWithKey :: BS.ByteString -> BS.ByteString -> BS.ByteString
+xorWithKey st key = repKey `xor` st
+    where
+        repCount  = BS.length st `div` BS.length key
+        remainder = BS.length st `mod` BS.length key
+        repKey    = repByteStr repCount key <> BS.take remainder key
 
 
 bslines :: BS.ByteString -> [BS.ByteString]
