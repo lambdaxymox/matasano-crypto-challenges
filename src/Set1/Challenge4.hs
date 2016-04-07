@@ -38,5 +38,6 @@ plainText = do
     return (w2c ch, BS.pack $ extractHexBytes unpackedSt)
 
 
+-- | Challenge 4
 challenge4 :: IO (Char, BS.ByteString)
 challenge4 = plainText

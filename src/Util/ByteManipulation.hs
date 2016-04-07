@@ -24,6 +24,12 @@ module Util.ByteManipulation
         repByteStr,
         hammingDistance,
         hammingDistanceBS,
+        maybeHammingDist,
+        maybeHammingFracDist,
+        meanHammingFracDist,
+        maybeMeanHammingFracDist,
+        padBS,
+        padding,
     )
     where
 
@@ -171,6 +177,13 @@ bslines :: BS.ByteString -> [BS.ByteString]
 bslines = BS.split (c2w '\n')
 
 
+padBS :: Int -> BS.ByteString -> BS.ByteString
+padBS n st = st <> repWord8 0x00 (n - BS.length st)
+
+padding :: Int -> BS.ByteString
+padding n = repWord8 0x00 n
+
+
 -- | The 'hammingDistance' function calculates the Hamming distance between two numbers. The Hamming distance
 --   is the number of bits where two numbers differ.
 hammingDistance :: Integral b => Word8 -> Word8 -> b
@@ -184,7 +197,48 @@ hammingDistance x y =  loop (x `Bits.xor` y) 0
             in 
                 loop val' dist'
 
+
 -- | The 'hammingDistance' function calculates the Hamming distance between strings. The Hamming distance
 --   is the number of bits where two values differ.
 hammingDistanceBS :: Integral b => BS.ByteString -> BS.ByteString -> b
 hammingDistanceBS st1 st2 = sum $ BS.zipWith (\ch1 ch2 -> hammingDistance ch1 ch2) st1 st2
+
+
+maybeHammingDist :: Integral b => BS.ByteString -> BS.ByteString -> Maybe b
+maybeHammingDist bs1 bs2
+    | BS.length bs1 == BS.length bs2 = Just $ hammingDistanceBS bs1 bs2
+    | otherwise                      = Nothing
+
+
+hammingFractionalDist :: (Floating b, Ord b) => BS.ByteString -> BS.ByteString -> b
+hammingFractionalDist bs1 bs2 = fromIntegral distance / fromIntegral size
+    where
+        distance = hammingDistanceBS bs1 bs2
+        size     = BS.length bs1
+
+
+maybeHammingFracDist :: (Floating b, Ord b) => BS.ByteString -> BS.ByteString -> Maybe b
+maybeHammingFracDist bs1 bs2
+    | BS.length bs1 == BS.length bs2 = Just $ hammingFractionalDist bs1 bs2
+    | otherwise                      = Nothing
+
+
+meanHammingFracDist :: (Floating b, Ord b) => [BS.ByteString] -> b
+meanHammingFracDist bss = fromIntegral dist / fromIntegral len
+    where
+        edit (bs1:[])      = 0
+        edit []            = 0
+        edit (bs1:bs2:bss) = hammingDistanceBS bs1 bs2 + edit (bs2:bss)
+
+        dist = edit bss
+        len  = sum $ map (BS.length) bss
+
+
+maybeMeanHammingFracDist :: (Floating b, Ord b) => [BS.ByteString] -> Maybe b
+maybeMeanHammingFracDist bss
+    | null bss       = Nothing
+    | sameLength bss = Just $ meanHammingFracDist bss
+    | otherwise      = Nothing
+    where
+        bs1 = head bss
+        sameLength bss = all (\bs -> BS.length bs == BS.length bs1) bss

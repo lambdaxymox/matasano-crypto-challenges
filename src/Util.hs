@@ -2,6 +2,7 @@ module Util
     (
         module Util.ByteManipulation,
         module Util.IO,
+        module Util.Util,
         ToHexadecimal(..),
         extractHexBytes,
         maybeExtractHexBytes,
@@ -11,3 +12,4 @@ module Util
 import Util.ByteManipulation
 import Util.Hexadecimal (ToHexadecimal(..), extractHexBytes, maybeExtractHexBytes)
 import Util.IO
+import Util.Util
