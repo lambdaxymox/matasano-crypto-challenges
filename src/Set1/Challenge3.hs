@@ -9,10 +9,10 @@ module Set1.Challenge3
 
 import           Util (extractHexBytes)
 import           Util.ByteManipulation
-import           Crypto.FrequencyAnalysis
-import qualified Data.ByteString          as BS
-import qualified Data.ByteString.Char8    as BSC8
-import qualified Data.Map.Strict          as Map
+import           Crypto.FrequencyAnalysis.English
+import qualified Data.ByteString                  as BS
+import qualified Data.ByteString.Char8            as BSC8
+import qualified Data.Map.Strict                  as Map
 import           Data.List (maximumBy, minimumBy)
 
 

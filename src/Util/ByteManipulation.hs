@@ -10,6 +10,8 @@ for manipulating strings and bitwise arithmetic operations on ByteStrings.
 -}
 module Util.ByteManipulation
     (
+        c2w,
+        w2c,
         base64,
         xor,
         maybeXor,
