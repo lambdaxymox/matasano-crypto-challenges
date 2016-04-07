@@ -173,7 +173,7 @@ bslines = BS.split (c2w '\n')
 
 -- | The 'hammingDistance' function calculates the Hamming distance between two numbers. The Hamming distance
 --   is the number of bits where two numbers differ.
-hammingDistance :: (Bits a, Integral a, Integral b) => a -> a -> b
+hammingDistance :: Integral b => Word8 -> Word8 -> b
 hammingDistance x y =  loop (x `Bits.xor` y) 0
     where
         loop 0   dist = dist
