@@ -115,26 +115,26 @@ maybeOr = maybeOp and
 
 
 
-withChar :: Char -> BS.ByteString -> BS.ByteString
-withChar ch st = repChar ch (BS.length st)
+withChar :: Word8 -> BS.ByteString -> BS.ByteString
+withChar ch st = repWord8 ch (BS.length st)
 
 
 opWithChar :: (BS.ByteString -> BS.ByteString -> BS.ByteString)
-            -> Char
+            -> Word8
             -> BS.ByteString 
             -> BS.ByteString 
 opWithChar op ch st = st `op` withChar ch st
 
 -- | 'xorWithChar' exclusive-or's a string with a string of repeating characters
 --   of length equal to the original string. 
-xorWithChar :: Char -> BS.ByteString -> BS.ByteString
+xorWithChar :: Word8 -> BS.ByteString -> BS.ByteString
 xorWithChar = opWithChar xor
 
 -- | Other keyed arithmetic operation with repeating characters.
-andWithChar :: Char -> BS.ByteString -> BS.ByteString
+andWithChar :: Word8 -> BS.ByteString -> BS.ByteString
 andWithChar = opWithChar and
 
-orWithChar :: Char -> BS.ByteString -> BS.ByteString
+orWithChar :: Word8 -> BS.ByteString -> BS.ByteString
 orWithChar = opWithChar or
 
 

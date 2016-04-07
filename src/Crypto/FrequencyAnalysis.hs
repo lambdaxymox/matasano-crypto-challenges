@@ -3,7 +3,9 @@ module Crypto.FrequencyAnalysis
         computeWordCounts,
         relativeFreqs,
         scoreWith, 
-        --mostLikelyChar,
+        searchForCharKeyWith,
+        maxCharWith,
+        minCharWith,
     )
     where
 
@@ -15,6 +17,7 @@ import qualified Data.ByteString.Char8            as BSC8
 import qualified Data.Map.Strict                  as Map
 import           Data.Word
 import           Data.List (maximumBy, minimumBy)
+import qualified Data.List                        as L (map)
 import           Data.Char (chr, toUpper)
 
 
@@ -45,5 +48,29 @@ scoreWith :: (Floating a, Ord a) => (Map.Map Word8 a -> a) -> BS.ByteString -> a
 scoreWith scoreFunc = scoreFunc . relativeFreqs
 
 
---mostLikelyChar = id
+
+searchForCharKeyWith :: (Floating a, Ord a) => ( (((Word8, BS.ByteString), a) -> ((Word8, BS.ByteString), a) -> Ordering) -> [((Word8, BS.ByteString), a)] -> ((Word8, BS.ByteString), a) )
+                                            -> (BS.ByteString -> a)
+                                            -> [Word8]
+                                            -> BS.ByteString 
+                                            -> ((Word8, BS.ByteString), a)
+searchForCharKeyWith searchFunc scoreFunc charSet st = 
+    searchFunc (\p1 p2 -> compare (snd p1) (snd p2) ) scores
+        where
+            scores = L.map (\ch -> ((ch, cipherText ch st), scoreFunc $ cipherText ch st)) charSet
+            cipherText ch st = xorWithChar ch st
+
+
+maxCharWith :: (Floating a, Ord a) => (BS.ByteString -> a)
+                                      -> [Word8]
+                                      -> BS.ByteString 
+                                      -> ((Word8, BS.ByteString), a)
+maxCharWith = searchForCharKeyWith maximumBy
+
+
+minCharWith :: (Floating a, Ord a) => (BS.ByteString -> a)
+                                      -> [Word8]
+                                      -> BS.ByteString 
+                                      -> ((Word8, BS.ByteString), a)
+minCharWith = searchForCharKeyWith minimumBy
 

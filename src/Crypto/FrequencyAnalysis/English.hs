@@ -9,6 +9,7 @@ module Crypto.FrequencyAnalysis.English
     where
 
 import qualified Data.ByteString                          as BS
+import qualified Data.ByteString.Char8                    as BSC8
 import           Crypto.FrequencyAnalysis
 import           Data.Map                                 as Map
 import           Util.ByteManipulation (xorWithChar, c2w)
@@ -37,6 +38,8 @@ frequencyTableW8 = Map.fromList [
         (c2w 'Q', 0.095),  (c2w 'Z', 0.074)
     ]
 
+englishLetters :: [Word8]
+englishLetters = BS.unpack $ BSC8.pack "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
 -- | The 'euclideanDist' function calculates the variance of the frequencies with respect to the English language
 --   frequency table.
@@ -59,8 +62,5 @@ score = scoreWith euclideanDist
 
 -- | Assuming a ciphertext is the result of exclusive-oring a plaintext with a single character key, 
 --   the 'mostLikelyChar' function guesses the most likely used character.
-mostLikelyChar :: BS.ByteString -> ((Char, BS.ByteString), Double)
-mostLikelyChar st = maximumBy (\p1 p2 -> compare (snd p1) (snd p2) ) scores
-    where
-        scores = L.map (\ch -> ((ch, cipherText ch), score $ cipherText ch)) "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        cipherText ch = xorWithChar ch st
+mostLikelyChar :: BS.ByteString -> ((Word8, BS.ByteString), Double)
+mostLikelyChar = maxCharWith score englishLetters
