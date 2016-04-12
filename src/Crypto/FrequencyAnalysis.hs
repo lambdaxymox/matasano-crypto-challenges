@@ -48,7 +48,6 @@ scoreWith :: (Floating a, Ord a) => (Map.Map Word8 a -> a) -> BS.ByteString -> a
 scoreWith scoreFunc = scoreFunc . relativeFreqs
 
 
-
 searchForCharKeyWith :: (Floating a, Ord a) => ( (((Word8, BS.ByteString), a) -> ((Word8, BS.ByteString), a) -> Ordering) -> [((Word8, BS.ByteString), a)] -> ((Word8, BS.ByteString), a) )
                                             -> (BS.ByteString -> a)
                                             -> [Word8]
