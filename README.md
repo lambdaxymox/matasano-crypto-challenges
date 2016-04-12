@@ -3,4 +3,4 @@
 Solutions to the Matasano Crypto Challenges for learning practical cryptography 
 and cryptanalysis. The code is written in Haskell.
 
-http://www.cryptopals.com/
+http://cryptopals.com/
