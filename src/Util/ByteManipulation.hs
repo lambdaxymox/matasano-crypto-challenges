@@ -30,6 +30,7 @@ module Util.ByteManipulation
         maybeMeanHammingFracDist,
         padBS,
         padding,
+        transposeAll
     )
     where
 
@@ -46,6 +47,7 @@ import           Data.Monoid
 import qualified Data.Bits                as Bits (Bits(..)) 
 import           Data.Bits                (Bits, (.|.), (.&.))
 import           Text.Megaparsec          (many, parseMaybe, hexDigitChar)
+import qualified Data.List                as L (map)
 import           Text.Printf
 import qualified Data.ByteString.Internal as BS (c2w, w2c)
 
@@ -242,3 +244,10 @@ maybeMeanHammingFracDist bss
     where
         bs1 = head bss
         sameLength bss = all (\bs -> BS.length bs == BS.length bs1) bss
+
+
+transpose :: Int -> Int -> BS.ByteString -> BS.ByteString
+transpose n j st = BS.pack $ L.map (\i -> BS.index st i) [i | i <- [0..BS.length st - 1], i `mod` n == j]
+
+transposeAll :: Int -> BS.ByteString -> [BS.ByteString]
+transposeAll n st = L.map (\j -> transpose n j st) [0..n-1]

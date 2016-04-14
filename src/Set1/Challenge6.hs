@@ -13,7 +13,7 @@ module Set1.Challenge6
 import           Crypto.FrequencyAnalysis.English (mostLikelyChar)
 import           Util.Util                        (right)
 import           Util.IO                          (getKPaddedBlocks, readBS, sizedBlocks)
-import           Util.ByteManipulation            (xorWithKey, maybeMeanHammingFracDist)
+import           Util.ByteManipulation            (xorWithKey, maybeMeanHammingFracDist, transposeAll)
 import qualified Data.ByteString                  as BS
 import           Data.Maybe                       (fromJust)
 import qualified Data.List                        as L (minimumBy, map)
@@ -47,12 +47,6 @@ mostProbableKeySize = guessKeySize4 keySizes <$> secret
 
 chunks :: IO [BS.ByteString]
 chunks = fmap (right) $ sizedBlocks <$> mostProbableKeySize <*> secret
-
-transpose :: Int -> Int -> BS.ByteString -> BS.ByteString
-transpose n j st = BS.pack $ L.map (\i -> BS.index st i) [i | i <- [0..BS.length st - 1], i `mod` n == j]
-
-transposeAll :: Int -> BS.ByteString -> [BS.ByteString]
-transposeAll n st = L.map (\j -> transpose n j st) [0..n-1]
 
 cipherTextBlocks :: IO [BS.ByteString]
 cipherTextBlocks = transposeAll <$> mostProbableKeySize <*> secret
