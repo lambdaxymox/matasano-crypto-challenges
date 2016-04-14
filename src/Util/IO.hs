@@ -69,10 +69,6 @@ exactlyKSizedBlocks k size st
         chunkCount = (BS.length st) `div` size
 
 
---unsafePaddedKBlocks :: Int -> Int -> BS.ByteString -> [BS.ByteString]
---unsafePaddedKBlocks k size st
-
-
 getKPaddedBlocks :: Int -> Int -> BS.ByteString -> Either String [BS.ByteString]
 getKPaddedBlocks k size st 
     | chunkCount < k = exactlyKSizedBlocks k size paddedStr

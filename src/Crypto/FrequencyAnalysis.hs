@@ -73,3 +73,6 @@ minCharWith :: (Floating a, Ord a) => (BS.ByteString -> a)
                                       -> ((Word8, BS.ByteString), a)
 minCharWith = searchForCharKeyWith minimumBy
 
+
+--totalVariationDistance :: (Floating a, Ord a) => Map.Map Word8 a -> Map.Map Word8 a -> a
+--totalVariationDistance ps qs = 

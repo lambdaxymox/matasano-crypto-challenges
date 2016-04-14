@@ -2,7 +2,7 @@ module Crypto.FrequencyAnalysis.English
     (
         frequencyTable,
         frequencyTableW8,
-        euclideanDist,
+        variationDist,
         score,
         mostLikelyChar,
     )
@@ -41,26 +41,28 @@ frequencyTableW8 = Map.fromList [
 englishLetters :: [Word8]
 englishLetters = BS.unpack $ BSC8.pack "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
--- | The 'euclideanDist' function calculates the variance of the frequencies with respect to the English language
---   frequency table.
-euclideanDist :: Map.Map Word8 Double -> Double
-euclideanDist table =  Map.foldrWithKey variance 0 table
+
+-- | The 'variationDist' function calculates the variation distance between two probability distributions. The probability
+--   distribution with the smallest variation distance from the reference distribution frequencyTableW8 is the most likely
+--   one to be an English sentence.
+variationDist :: Map.Map Word8 Double -> Double
+variationDist qs =  Map.foldrWithKey variationDist' 0 qs
     where
-        variance key val acc = acc + term key val
+        variationDist' key val acc = acc + term key val
 
         term key val = case Map.lookup key frequencyTableW8 of 
-            -- If value is not present, we're further away from being an English sentence.
-            Nothing   -> 0.0 
-            Just mean -> (val - mean)*(val - mean)
+            -- If value is not present, we don't count it.
+            Nothing -> 0.0 
+            Just q  -> abs (val - q)
 
 
 -- | The 'score' function calculates the variance of a string with respect to the English language
 --   frequency table.
 score :: BS.ByteString -> Double
-score = scoreWith euclideanDist
+score = scoreWith variationDist
 
 
 -- | Assuming a ciphertext is the result of exclusive-oring a plaintext with a single character key, 
 --   the 'mostLikelyChar' function guesses the most likely used character.
 mostLikelyChar :: BS.ByteString -> ((Word8, BS.ByteString), Double)
-mostLikelyChar = maxCharWith score englishLetters
+mostLikelyChar = minCharWith score englishLetters
