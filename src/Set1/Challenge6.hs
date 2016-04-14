@@ -4,18 +4,19 @@ module Set1.Challenge6
         blocks,
         mostProbableKeySize,
         chunks,
-        cipherTextBlocks
+        cipherTextBlocks,
+        challenge6,
 
     )
     where
 
-import           Util.Util             (right)
-import           Util.IO               (getKPaddedBlocks, readBS, sizedBlocks)
-import           Util.ByteManipulation (meanHammingFracDist, maybeMeanHammingFracDist)
-import qualified Data.ByteString       as BS
-import           Data.Maybe            (fromJust)
-import qualified Data.List             as L (minimumBy, map)
-import           System.IO.Unsafe      (unsafePerformIO)
+import           Crypto.FrequencyAnalysis.English (mostLikelyChar)
+import           Util.Util                        (right)
+import           Util.IO                          (getKPaddedBlocks, readBS, sizedBlocks)
+import           Util.ByteManipulation            (xorWithKey, maybeMeanHammingFracDist)
+import qualified Data.ByteString                  as BS
+import           Data.Maybe                       (fromJust)
+import qualified Data.List                        as L (minimumBy, map)
 import           Data.Monoid
 
 
@@ -55,3 +56,18 @@ transposeAll n st = L.map (\j -> transpose n j st) [0..n-1]
 
 cipherTextBlocks :: IO [BS.ByteString]
 cipherTextBlocks = transposeAll <$> mostProbableKeySize <*> secret
+
+guessedKey :: IO BS.ByteString
+guessedKey = BS.pack <$> (L.map (\st -> fst . fst $ mostLikelyChar st) <$> cipherTextBlocks)
+
+unSecret :: IO BS.ByteString
+unSecret = xorWithKey <$> secret <*> guessedKey
+
+-- This is for practice translating do notation.
+challenge6' = guessedKey >>= \key -> unSecret >>= \plainText -> return (key, plainText)
+
+challenge6 :: IO (BS.ByteString, BS.ByteString)
+challenge6 = do
+    key       <- guessedKey
+    plainText <- unSecret
+    return (key, plainText)
