@@ -1,4 +1,6 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# OPTIONS_GHC -fno-warn-name-shadowing -fno-warn-unused-binds #-}
+{-# OPTIONS_GHC #-}
 
 {- |
 Module: Util.ByteManipulation
@@ -42,15 +44,10 @@ import qualified Data.ByteString.Char8   as BSC8
 import qualified Data.ByteString.Builder as BS
 import qualified Data.ByteString.Lazy    as BSL
 import           Data.Word
-import           Data.Maybe
 import           Data.Monoid
 import qualified Data.Bits                as Bits (Bits(..)) 
-import           Data.Bits                (Bits, (.|.), (.&.))
-import           Text.Megaparsec          (many, parseMaybe, hexDigitChar)
+import           Data.Bits                ((.&.))
 import qualified Data.List                as L (map)
-import           Text.Printf
-import qualified Data.ByteString.Internal as BS (c2w, w2c)
-
 
 
 -- Utility functions for manipulating strings and hexadecimal digits.
@@ -228,7 +225,7 @@ maybeHammingFracDist bs1 bs2
 meanHammingFracDist :: (Floating b, Ord b) => [BS.ByteString] -> b
 meanHammingFracDist bss = fromIntegral dist / fromIntegral len
     where
-        edit (bs1:[])      = 0
+        edit (_:[])        = 0
         edit []            = 0
         edit (bs1:bs2:bss) = hammingDistanceBS bs1 bs2 + edit (bs2:bss)
 
