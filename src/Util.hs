@@ -9,7 +9,7 @@ module Util
     )
     where
 
-import Util.ByteManipulation as X
-import Util.Hexadecimal as X
-import Util.IO as X
-import Util.Util as X
+import Util.ByteManipulation
+import Util.Hexadecimal (ToHexadecimal(..), extractHexBytes, maybeExtractHexBytes)
+import Util.IO 
+import Util.Util

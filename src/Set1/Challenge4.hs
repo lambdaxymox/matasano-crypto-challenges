@@ -16,6 +16,7 @@ import           Data.ByteString.Char8                     as BSC8
 import qualified Data.List                                 as L (map, minimumBy, maximumBy)
 import           Data.Traversable
 import           Data.Word8
+import           Data.Function                             (on)
 
 
 secret :: IO [BS.ByteString]

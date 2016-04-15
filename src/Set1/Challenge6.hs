@@ -18,6 +18,7 @@ import qualified Data.ByteString                  as BS
 import           Data.Maybe                       (fromJust)
 import qualified Data.List                        as L (minimumBy, map)
 import           Data.Monoid
+import           Data.Function                    (on)
 
 
 secret :: IO BS.ByteString

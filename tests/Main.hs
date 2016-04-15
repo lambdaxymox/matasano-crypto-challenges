@@ -12,5 +12,6 @@ tests = TestList [
         TestLabel "Test.Util.ByteManipulation Tests"       Test.Util.ByteManipulation.tests
     ]
 
+main :: IO ()
 main = do count <- runTestTT tests 
           when (failures count > 0) Exit.exitFailure
