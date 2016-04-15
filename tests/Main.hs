@@ -4,6 +4,7 @@ import           Test.HUnit
 import qualified Test.Crypto.FrequencyAnalysis.English
 import qualified Test.Util.ByteManipulation
 import qualified System.Exit as Exit
+import           Control.Monad                           (when)
 
 tests :: Test
 tests = TestList [
@@ -12,4 +13,4 @@ tests = TestList [
     ]
 
 main = do count <- runTestTT tests 
-          if failures count > 0 then Exit.exitFailure else return ()
+          when (failures count > 0) Exit.exitFailure

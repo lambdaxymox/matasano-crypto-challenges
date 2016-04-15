@@ -19,13 +19,13 @@ import           Data.Word8
 
 
 secret :: IO [BS.ByteString]
-secret = L.map (BS.pack) <$> L.map (extractHexBytes) <$> L.map (BSC8.unpack) <$> readLines "Set1/ex4.txt"
+secret = L.map BS.pack <$> L.map extractHexBytes <$> L.map BSC8.unpack <$> readLines "Set1/ex4.txt"
 
 scores :: [BS.ByteString] -> [((Word8, BS.ByteString), Double)]
-scores strings = L.map (mostLikelyChar) strings
+scores = L.map mostLikelyChar
 
 obtain :: [BS.ByteString] -> (Word8, BS.ByteString)
-obtain strings = fst $ L.maximumBy (\p1 p2 -> compare (snd p1) (snd p2)) $ scores strings
+obtain strings = fst $ L.maximumBy (compare `on` snd) $ scores strings
 
 
 cipherText :: IO (Word8, BS.ByteString)

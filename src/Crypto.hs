@@ -1,6 +1,6 @@
 module Crypto
     (
-        module Crypto.FrequencyAnalysis
+        module Crypto.FrequencyAnalysis,
         module Crypto.FrequencyAnalysis.English
     )
     where

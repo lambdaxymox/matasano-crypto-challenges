@@ -19,15 +19,16 @@ import           Data.Word
 import           Data.List                        (maximumBy, minimumBy)
 import qualified Data.List                        as L (map)
 import           Data.Char                        (toUpper)
+import           Data.Function                    (on)
 
 
 
 computeWordCounts :: Integral a => BS.ByteString -> Map.Map Word8 a
-computeWordCounts bs = BS.foldl update Map.empty bs
+computeWordCounts = BS.foldl update Map.empty
     where
         update table key = case Map.lookup (upper key) table of
             Nothing  -> Map.insert (upper key) 1 table
-            Just _ -> Map.adjust (\val -> val+1) (upper key) table
+            Just _   -> Map.adjust (+1) (upper key) table
 
         upper = c2w . toUpper . w2c
 
@@ -54,10 +55,10 @@ searchForCharKeyWith :: (Floating a, Ord a) => ( (((Word8, BS.ByteString), a) ->
                                             -> BS.ByteString 
                                             -> ((Word8, BS.ByteString), a)
 searchForCharKeyWith searchFunc scoreFunc charSet st = 
-    searchFunc (\p1 p2 -> compare (snd p1) (snd p2) ) scores
+    searchFunc (compare `on` snd) scores
         where
             scores = L.map (\ch -> ((ch, cipherText ch st), scoreFunc $ cipherText ch st)) charSet
-            cipherText ch st = xorWithChar ch st
+            cipherText = xorWithChar
 
 
 maxCharWith :: (Floating a, Ord a) => (BS.ByteString -> a)
@@ -77,7 +78,7 @@ minCharWith = searchForCharKeyWith minimumBy
 -- | The 'variationDist' function calculates the variation distance between two probability distributions. The probability
 --   distribution Q with the smallest variation distance from P is in some sense the closest one to P.
 variationDist :: (Floating a, Ord a) => Map.Map Word8 a -> Map.Map Word8 a -> a
-variationDist ps qs =  Map.foldrWithKey variationDist' 0 qs
+variationDist ps =  Map.foldrWithKey variationDist' 0
     where
         variationDist' key p acc = acc + term key p
 

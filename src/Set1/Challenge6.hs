@@ -29,7 +29,7 @@ blocks k keySize bs = right $ getKPaddedBlocks k keySize bs
 
 
 usingBlockCount :: Int -> [Int] -> BS.ByteString -> Int
-usingBlockCount n keySizes bs = L.minimumBy (\ks1 ks2 -> compare (fracDist ks1) (fracDist ks2)) keySizes
+usingBlockCount n keySizes bs = L.minimumBy (compare `on` fracDist) keySizes
     where
         fracDist keySize = fromJust $ maybeMeanHammingFracDist $ blocks n keySize bs
 
@@ -46,13 +46,13 @@ mostProbableKeySize :: IO Int
 mostProbableKeySize = guessKeySize4 keySizes <$> secret
 
 chunks :: IO [BS.ByteString]
-chunks = fmap (right) $ sizedBlocks <$> mostProbableKeySize <*> secret
+chunks = fmap right $ sizedBlocks <$> mostProbableKeySize <*> secret
 
 cipherTextBlocks :: IO [BS.ByteString]
 cipherTextBlocks = transposeAll <$> mostProbableKeySize <*> secret
 
 guessedKey :: IO BS.ByteString
-guessedKey = BS.pack <$> (L.map (\st -> fst . fst $ mostLikelyChar st) <$> cipherTextBlocks)
+guessedKey = BS.pack <$> (L.map (fst . fst . mostLikelyChar) <$> cipherTextBlocks)
 
 unSecret :: IO BS.ByteString
 unSecret = xorWithKey <$> secret <*> guessedKey

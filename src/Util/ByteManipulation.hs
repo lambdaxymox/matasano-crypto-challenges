@@ -80,7 +80,7 @@ bitwiseOp op bs1 bs2 = BS.pack $ BS.zipWith op bs1 bs2
 --   This is the unsafe version since it does not check whether the ByteStrings are of equal
 --   length.
 xor :: BS.ByteString -> BS.ByteString -> BS.ByteString
-xor = bitwiseOp (Bits.xor)
+xor = bitwiseOp Bits.xor
 
 -- | Other bitwise arithmetic functions.
 
@@ -179,7 +179,7 @@ padBS :: Int -> BS.ByteString -> BS.ByteString
 padBS n st = st <> repWord8 0x00 (n - BS.length st)
 
 padding :: Int -> BS.ByteString
-padding n = repWord8 0x00 n
+padding = repWord8 0x00
 
 
 -- | The 'hammingDistance' function calculates the Hamming distance between two numbers. The Hamming distance
@@ -199,7 +199,7 @@ hammingDistance x y =  loop (x `Bits.xor` y) 0
 -- | The 'hammingDistance' function calculates the Hamming distance between strings. The Hamming distance
 --   is the number of bits where two values differ.
 hammingDistanceBS :: Integral b => BS.ByteString -> BS.ByteString -> b
-hammingDistanceBS st1 st2 = sum $ BS.zipWith (\ch1 ch2 -> hammingDistance ch1 ch2) st1 st2
+hammingDistanceBS st1 st2 = sum $ BS.zipWith hammingDistance st1 st2
 
 
 maybeHammingDist :: Integral b => BS.ByteString -> BS.ByteString -> Maybe b
@@ -224,12 +224,12 @@ maybeHammingFracDist bs1 bs2
 meanHammingFracDist :: (Floating b, Ord b) => [BS.ByteString] -> b
 meanHammingFracDist bss = fromIntegral dist / fromIntegral len
     where
-        edit (_:[])        = 0
-        edit []            = 0
+        edit [_]          = 0
+        edit []           = 0
         edit (bs1:bs2:bs) = hammingDistanceBS bs1 bs2 + edit (bs2:bs)
 
         dist = edit bss
-        len  = sum $ map (BS.length) bss
+        len  = sum $ map BS.length bss
 
 
 maybeMeanHammingFracDist :: (Floating b, Ord b) => [BS.ByteString] -> Maybe b
@@ -238,12 +238,12 @@ maybeMeanHammingFracDist bss
     | sameLength bss = Just $ meanHammingFracDist bss
     | otherwise      = Nothing
     where
-        bs1 = head bss
-        sameLength bss = all (\bs -> BS.length bs == BS.length bs1) bss
+        bs1        = head bss
+        sameLength = all (\bs -> BS.length bs == BS.length bs1)
 
 
 transpose :: Int -> Int -> BS.ByteString -> BS.ByteString
-transpose n j st = BS.pack $ L.map (\i -> BS.index st i) [i | i <- [0..BS.length st - 1], i `mod` n == j]
+transpose n j st = BS.pack $ L.map (BS.index st) [i | i <- [0..BS.length st - 1], i `mod` n == j]
 
 transposeAll :: Int -> BS.ByteString -> [BS.ByteString]
 transposeAll n st = L.map (\j -> transpose n j st) [0..n-1]

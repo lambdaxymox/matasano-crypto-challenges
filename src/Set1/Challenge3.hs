@@ -7,13 +7,14 @@ module Set1.Challenge3
     )
     where
 
-import           Util (extractHexBytes)
+import           Util                                 (extractHexBytes)
 import           Util.ByteManipulation
 import           Crypto.FrequencyAnalysis.English
-import qualified Data.ByteString                  as BS
-import qualified Data.ByteString.Char8            as BSC8
-import qualified Data.Map.Strict                  as Map
-import           Data.List (maximumBy, minimumBy)
+import qualified Data.ByteString                      as BS
+import qualified Data.ByteString.Char8                as BSC8
+import qualified Data.Map.Strict                      as Map
+import           Data.List                            (maximumBy, minimumBy)
+import           Data.Function                        (on)
 
 
 secret :: BS.ByteString
@@ -34,6 +35,6 @@ challenge3 :: (Char, BS.ByteString)
 challenge3 = (bestChar, bestString)
     where
         scores     = Map.map score candidates
-        bestChar   = fst $ maximumBy (\x y -> compare (snd x) (snd y)) $ Map.toList scores 
+        bestChar   = fst $ maximumBy (compare `on` snd) $ Map.toList scores 
         bestString = secret `xor` repChar bestChar (BS.length secret)
 

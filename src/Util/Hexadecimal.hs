@@ -128,15 +128,15 @@ class HexRep a where
 instance HexRep Word8 where
     fromHexRep digits = fromHexRep' $ hexDigits digits
         where
-            fromHexRep' (digit:[])       = Just (lowerNibble digit)
-            fromHexRep' (upper:lower:[]) = Just (upperNibble upper .|. lowerNibble lower)
-            fromHexRep' _                = Nothing
+            fromHexRep' [digit]       = Just (lowerNibble digit)
+            fromHexRep' [upper,lower] = Just (upperNibble upper .|. lowerNibble lower)
+            fromHexRep' _             = Nothing
 
 instance HexRep [Word8] where
     fromHexRep digits = Just $ fromHexRep' [] $ reverse $ hexDigits digits
         where
-            fromHexRep' acc []                   = acc
-            fromHexRep' acc (digit:[])           = (lowerNibble digit .|. upperNibble Hex0) : acc
+            fromHexRep' acc []               = acc
+            fromHexRep' acc [digit]          = (lowerNibble digit .|. upperNibble Hex0) : acc
             fromHexRep' acc (lower:upper:ds) = fromHexRep' ( (lowerNibble lower .|. upperNibble upper) : acc) ds
 
 
@@ -204,7 +204,7 @@ upperNibble d = case d of
 
 
 extractHexDigits :: String -> Maybe HexDigits
-extractHexDigits s = case (maybeHex s) of
+extractHexDigits s = case maybeHex s of
                     Just hexVal -> go hexVal
                     Nothing     -> Nothing
     where
@@ -212,14 +212,14 @@ extractHexDigits s = case (maybeHex s) of
         maybeHex = parseMaybe (many hexDigitChar)
 
         go :: String -> Maybe HexDigits
-        go st = fmap HexDigits $ sequence $ map (toHexDigit) st
+        go st = HexDigits <$> mapM toHexDigit st
 
 
 -- | The 'maybeExtractHexBytes' function extracts raw hexadecimal digits from a string. 
 maybeExtractHexBytes :: String -> Maybe [Word8]
-maybeExtractHexBytes st = case (extractHexDigits st) of 
+maybeExtractHexBytes st = case extractHexDigits st of 
                     Just hexVal -> fromHexRep hexVal
-                    Nothing  -> Nothing
+                    Nothing     -> Nothing
 
 
 -- | The 'extractHexBytes' function extracts raw hexadecimal digits from a string. 

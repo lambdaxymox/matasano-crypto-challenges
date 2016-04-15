@@ -18,7 +18,7 @@ readLines :: String -> IO [BS.ByteString]
 readLines fname = do
     file     <- openFile fname ReadMode
     contents <- BS.hGetContents file
-    strings  <- return $ bslines contents
+    let strings = bslines contents
     hClose file 
     return strings
 
@@ -32,7 +32,7 @@ readBS fname = do
 
 
 unsafeSizedBlock :: Int -> BS.ByteString -> BS.ByteString
-unsafeSizedBlock size st = BS.take size st
+unsafeSizedBlock = BS.take
 
 
 unsafeSizedBlocks :: Int -> BS.ByteString -> [BS.ByteString]
@@ -66,7 +66,7 @@ exactlyKSizedBlocks k size st
     | chunkCount < k = Left "Not enough chunks in string."
     | otherwise      = atMostKSizedBlocks k size st
     where
-        chunkCount = (BS.length st) `div` size
+        chunkCount = BS.length st `div` size
 
 
 getKPaddedBlocks :: Int -> Int -> BS.ByteString -> Either String [BS.ByteString]
@@ -74,8 +74,8 @@ getKPaddedBlocks k size st
     | chunkCount < k = exactlyKSizedBlocks k size paddedStr
     | otherwise      = exactlyKSizedBlocks k size st
     where
-        chunkCount       = (BS.length st) `div` size
-        remainingBytes   = ((BS.length st) `mod` size) -- Pad the last chunk of the string to an even multiple of chunk size
+        chunkCount       = BS.length st `div` size
+        remainingBytes   = BS.length st `mod` size -- Pad the last chunk of the string to an even multiple of chunk size
         padBytes         = size - remainingBytes       -- The number of bytes to to pad the last chunk of the original string to size.
         neededChunks     = k - chunkCount - 1          -- The number of chunks worth of padding after the remainder is padded. 
         neededChunkBytes = size * neededChunks         -- The byte size of the needed chunks. 

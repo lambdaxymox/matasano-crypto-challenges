@@ -43,7 +43,7 @@ englishLetters = BS.unpack $ BSC8.pack "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 -- | The 'scoreFunc' function simply adds up the relative frequency that each character in a string with respect
 --   to the English langauge frequency table. 
 scoreFunc :: Map.Map Word8 Double -> Double
-scoreFunc qs = Map.foldrWithKey scoreFunc' 0 qs
+scoreFunc = Map.foldrWithKey scoreFunc' 0
     where
         scoreFunc' k _ acc = acc + term k
 
