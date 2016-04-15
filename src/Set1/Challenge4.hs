@@ -1,9 +1,11 @@
 module Set1.Challenge4
     (
         secret,
+        scores,
         challenge4,
         plainText,
         cipherText,
+        answer,
     )
     where
 
@@ -11,6 +13,7 @@ import           Util                                      (extractHexBytes)
 import           Util.ByteManipulation                     (xorWithChar, w2c, c2w)
 import           Util.IO                                   (readLines)
 import           Crypto.FrequencyAnalysis.English
+import           Crypto.FrequencyAnalysis
 import           Data.ByteString                           as BS
 import           Data.ByteString.Char8                     as BSC8
 import qualified Data.List                                 as L (map, minimumBy, maximumBy)
@@ -20,26 +23,26 @@ import           Data.Function                             (on)
 
 
 secret :: IO [BS.ByteString]
-secret = L.map BS.pack <$> L.map extractHexBytes <$> L.map BSC8.unpack <$> readLines "Set1/ex4.txt"
+secret = L.map (BS.pack . extractHexBytes . BSC8.unpack) <$> readLines "Set1/ex4.txt"
 
 scores :: [BS.ByteString] -> [((Word8, BS.ByteString), Double)]
-scores = L.map mostLikelyChar
+scores = L.map mostLikelyWord8
 
 obtain :: [BS.ByteString] -> (Word8, BS.ByteString)
 obtain strings = fst $ L.maximumBy (compare `on` snd) $ scores strings
 
-
 cipherText :: IO (Word8, BS.ByteString)
 cipherText = obtain <$> secret
 
-plainText :: IO (Char, BS.ByteString)
+plainText :: IO (Word8, BS.ByteString)
 plainText = do
-    (ch, st)       <- cipherText
-    let hexSt      = xorWithChar ch st
-    let unpackedSt = BSC8.unpack hexSt
-    return (w2c ch, BSC8.pack unpackedSt)
+    (ch, st)  <- cipherText
+    let hexSt = xorWithChar ch st
+    return (ch, hexSt)
 
+answer :: (Word8, BS.ByteString)
+answer = (53, BSC8.pack "Now that the party is jumping\n")
 
 -- | Challenge 4
-challenge4 :: IO (Char, BS.ByteString)
+challenge4 :: IO (Word8, BS.ByteString)
 challenge4 = plainText

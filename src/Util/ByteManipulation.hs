@@ -13,7 +13,6 @@ module Util.ByteManipulation
     (
         c2w,
         w2c,
-        base64,
         xor,
         maybeXor,
         repChar,
@@ -38,7 +37,6 @@ module Util.ByteManipulation
 import           Prelude                 hiding (or, and)
 import           Util.Hexadecimal
 import qualified Data.ByteString         as BS
-import qualified Data.ByteString.Base64  as Base64
 import qualified Data.ByteString.Char8   as BSC8
 import qualified Data.ByteString.Builder as BS
 import qualified Data.ByteString.Lazy    as BSL
@@ -66,11 +64,6 @@ repByteStr n bs = BSL.toStrict $ BS.toLazyByteString $ repStrBuilder n (BS.byteS
 
 repStr :: Int -> String -> BS.ByteString
 repStr n st = BSL.toStrict $ BS.toLazyByteString $ repStrBuilder n (BS.string8 st)
-
-
--- | The 'base64' function encodes a ByteString into base64.
-base64 :: BS.ByteString -> BS.ByteString
-base64 = Base64.encode
 
 
 bitwiseOp :: (Word8 -> Word8 -> Word8) -> BS.ByteString -> BS.ByteString -> BS.ByteString

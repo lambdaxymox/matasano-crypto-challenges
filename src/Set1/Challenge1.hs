@@ -11,6 +11,7 @@ import           Util.ByteManipulation
 import           Data.Maybe
 import qualified Data.ByteString          as BS
 import qualified Data.ByteString.Char8    as BSC8 (pack)
+import qualified Data.ByteString.Base64   as Base64
 
 
 -- | The secret string as a string of hexadecimal digits.
@@ -26,4 +27,4 @@ secretBase64 :: BS.ByteString
 secretBase64 = BSC8.pack "SSdtIGtpbGxpbmcgeW91ciBicmFpbiBsaWtlIGEgcG9pc29ub3VzIG11c2hyb29t"
 
 -- | Challenge 1
-challenge1 = base64 secret
+challenge1 = Base64.encode secret

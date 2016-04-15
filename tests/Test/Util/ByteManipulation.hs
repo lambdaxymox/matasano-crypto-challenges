@@ -24,4 +24,5 @@ test2 = TestCase $ do
                     assertEqual "" (hammingDistanceBS st1 st2) 37
 
 
+tests :: Test
 tests = TestList [test1, test2]

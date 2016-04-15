@@ -23,7 +23,6 @@ secret = BS.pack $ extractHexBytes "1b37373331363f78151b7f2b783431333d7839782837
 candidates :: Map.Map Char BS.ByteString
 candidates = Map.fromList $ map (\ch -> (ch, secret `xor` repChar ch (BS.length secret))) "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
-
 answerS :: BS.ByteString
 answerS = BSC8.pack "Cooking MC's like a pound of bacon"
 

@@ -17,3 +17,4 @@ import qualified Set1.Challenge5 as Challenge5
 import qualified Set1.Challenge6 as Challenge6 
 
 import Util.ByteManipulation
+import Util.Hexadecimal

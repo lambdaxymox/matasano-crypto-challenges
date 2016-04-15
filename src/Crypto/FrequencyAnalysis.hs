@@ -9,6 +9,7 @@ module Crypto.FrequencyAnalysis
         maxCharWith,
         minCharWith,
         variationDist,
+        rawBytes,
     )
     where
 
@@ -57,7 +58,7 @@ searchForCharKeyWith :: (Floating a, Ord a) => ( (((Word8, BS.ByteString), a) ->
 searchForCharKeyWith searchFunc scoreFunc charSet st = 
     searchFunc (compare `on` snd) scores
         where
-            scores = L.map (\ch -> ((ch, cipherText ch st), scoreFunc $ cipherText ch st)) charSet
+            scores = L.map (\ch -> ((ch, st), scoreFunc $ cipherText ch st)) charSet
             cipherText = xorWithChar
 
 
@@ -74,6 +75,9 @@ minCharWith :: (Floating a, Ord a) => (BS.ByteString -> a)
                                       -> ((Word8, BS.ByteString), a)
 minCharWith = searchForCharKeyWith minimumBy
 
+
+rawBytes :: [Word8]
+rawBytes = [0x00..0xFF]
 
 -- | The 'variationDist' function calculates the variation distance between two probability distributions. The probability
 --   distribution Q with the smallest variation distance from P is in some sense the closest one to P.

@@ -5,6 +5,7 @@ module Crypto.FrequencyAnalysis.English
         score,
         mostLikelyChar,
         mostLikelyPair,
+        mostLikelyWord8,
     )
     where
 
@@ -43,7 +44,7 @@ englishLetters = BS.unpack $ BSC8.pack "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 -- | The 'scoreFunc' function simply adds up the relative frequency that each character in a string with respect
 --   to the English langauge frequency table. 
 scoreFunc :: Map.Map Word8 Double -> Double
-scoreFunc = Map.foldrWithKey scoreFunc' 0
+scoreFunc = Map.foldrWithKey scoreFunc' 0.0
     where
         scoreFunc' k _ acc = acc + term k
 
@@ -59,9 +60,12 @@ score = scoreWith scoreFunc
 
 
 -- | Assuming a ciphertext is the result of exclusive-oring a plaintext with a single character key, 
---   the 'mostLikelyChar' function guesses the most likely used character.
+--   the 'mostLikelyChar' sfunction guesses the most likely used character.
 mostLikelyChar :: BS.ByteString -> ((Word8, BS.ByteString), Double)
 mostLikelyChar = maxCharWith score englishLetters
 
 mostLikelyPair :: BS.ByteString -> (Word8, BS.ByteString)
 mostLikelyPair = fst . mostLikelyChar
+
+mostLikelyWord8 :: BS.ByteString -> ((Word8, BS.ByteString), Double)
+mostLikelyWord8 = maxCharWith score rawBytes
