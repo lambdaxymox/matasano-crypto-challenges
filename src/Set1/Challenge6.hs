@@ -1,64 +1,65 @@
 module Set1.Challenge6
     (
         secret,
-        blocks,
         mostProbableKeySize,
-        chunks,
+        guessedKey,
         cipherTextBlocks,
+        guessKeySize,
+        guessKeySizeN,
+        keySizes,
         challenge6,
 
     )
     where
 
-import           Crypto.FrequencyAnalysis.English (mostLikelyChar)
+import           Crypto.FrequencyAnalysis.English (mostLikelyWord8)
 import           Util.Util                        (right)
-import           Util.IO                          (getKPaddedBlocks, readBS, sizedBlocks)
-import           Util.ByteManipulation            (xorWithKey, maybeMeanHammingFracDist, transposeAll)
+import           Util.IO                          (getKPaddedBlocks, readBS, sizedBlocks, unpaddedBlockCount)
+import           Util.ByteManipulation            (xorWithKey, meanHammingFracDist, transposeAll)
 import qualified Data.ByteString                  as BS
-import           Data.Maybe                       (fromJust)
 import qualified Data.List                        as L (minimumBy, map)
 import           Data.Monoid
 import           Data.Function                    (on)
+import           Data.ByteString.Base64           as Base64
+import           Data.ByteString.Char8            as BSC8
+import           System.IO.Unsafe                 (unsafePerformIO)
 
 
 secret :: IO BS.ByteString
-secret = readBS "Set1/ex6.txt"
-
+secret = Base64.decodeLenient <$> readBS "Set1/ex6.txt"
 
 blocks :: Int -> Int -> BS.ByteString -> [BS.ByteString]
 blocks k keySize bs = right $ getKPaddedBlocks k keySize bs
 
-
-usingBlockCount :: Int -> [Int] -> BS.ByteString -> Int
-usingBlockCount n keySizes bs = L.minimumBy (compare `on` fracDist) keySizes
+guessKeySizeN :: Int -> [Int] -> BS.ByteString -> Int
+guessKeySizeN n keySizes bs = L.minimumBy (compare `on` fracDist) keySizes
     where
-        fracDist keySize = fromJust $ maybeMeanHammingFracDist $ blocks n keySize bs
+        fracDist keySize = meanHammingFracDist $ blocks n keySize bs
 
+guessKeySize :: [Int] -> BS.ByteString -> Int
+guessKeySize = guessKeySizeN 10
 
-guessKeySize4 :: [Int] -> BS.ByteString -> Int
-guessKeySize4 = usingBlockCount 4
-
-
--- | Challenge 6
 keySizes :: [Int]
-keySizes = [2..32]
+keySizes = [2..40]
 
 mostProbableKeySize :: IO Int
-mostProbableKeySize = guessKeySize4 keySizes <$> secret
-
-chunks :: IO [BS.ByteString]
-chunks = fmap right $ sizedBlocks <$> mostProbableKeySize <*> secret
+mostProbableKeySize = guessKeySize keySizes <$> secret
 
 cipherTextBlocks :: IO [BS.ByteString]
 cipherTextBlocks = transposeAll <$> mostProbableKeySize <*> secret
 
 guessedKey :: IO BS.ByteString
-guessedKey = BS.pack <$> (L.map (fst . fst . mostLikelyChar) <$> cipherTextBlocks)
+guessedKey = BS.pack <$> (L.map (fst . fst . mostLikelyWord8) <$> cipherTextBlocks)
 
 unSecret :: IO BS.ByteString
 unSecret = xorWithKey <$> secret <*> guessedKey
 
--- This is for practice translating do notation.
+answerKey :: BS.ByteString
+answerKey = BSC8.pack "Terminator X: Bring the noise"
+
+-- | Challenge 6
+
+-- This is just practice translating do notation. It is equivalent to challenge6.
 challenge6' = guessedKey >>= \key -> unSecret >>= \plainText -> return (key, plainText)
 
 challenge6 :: IO (BS.ByteString, BS.ByteString)

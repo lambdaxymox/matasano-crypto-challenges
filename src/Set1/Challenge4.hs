@@ -1,7 +1,6 @@
 module Set1.Challenge4
     (
         secret,
-        scores,
         challenge4,
         plainText,
         cipherText,
@@ -20,6 +19,7 @@ import qualified Data.List                                 as L (map, minimumBy,
 import           Data.Traversable
 import           Data.Word8
 import           Data.Function                             (on)
+import           System.IO.Unsafe
 
 
 secret :: IO [BS.ByteString]

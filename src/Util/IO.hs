@@ -4,7 +4,8 @@ module Util.IO
         readBS,
         sizedBlocks,
         exactlyKSizedBlocks,
-        getKPaddedBlocks, 
+        getKPaddedBlocks,
+        unpaddedBlockCount,
     )
     where
 
@@ -81,3 +82,7 @@ getKPaddedBlocks k size st
         neededChunkBytes = size * neededChunks         -- The byte size of the needed chunks. 
         neededBytes      = neededChunkBytes + padBytes -- The total number of padding bytes needed.
         paddedStr        = st <> padding neededBytes 
+
+
+unpaddedBlockCount :: Int -> BS.ByteString -> Int
+unpaddedBlockCount size st = BS.length st `div` size
