@@ -5,6 +5,7 @@ module Crypto.FrequencyAnalysis.English
         variationDist,
         score,
         mostLikelyChar,
+        mostLikelyPair,
     )
     where
 
@@ -66,3 +67,6 @@ score = scoreWith variationDist
 --   the 'mostLikelyChar' function guesses the most likely used character.
 mostLikelyChar :: BS.ByteString -> ((Word8, BS.ByteString), Double)
 mostLikelyChar = minCharWith score englishLetters
+
+mostLikelyPair :: BS.ByteString -> (Word8, BS.ByteString)
+mostLikelyPair = fst . mostLikelyChar
