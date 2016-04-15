@@ -22,7 +22,6 @@ import           Data.Monoid
 import           Data.Function                    (on)
 import           Data.ByteString.Base64           as Base64
 import           Data.ByteString.Char8            as BSC8
-import           System.IO.Unsafe                 (unsafePerformIO)
 
 
 secret :: IO BS.ByteString

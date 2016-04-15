@@ -4,8 +4,8 @@
 name:                matasano-crypto-challenges
 version:             0.1.0.0
 synopsis:            Solutions to the Matasano crypto challenges.            
-description:         This is a collection of solutions to the Matasano crypto challenges. They cabal-version
-                     be found at http://cryptopals.com/
+description:         This is a collection of solutions to the Matasano crypto challenges. They can
+                     be found at http://cryptopals.com/.
 license:             BSD3             
 license-file:        LICENSE
 author:              Stallmanifold
