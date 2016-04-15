@@ -66,7 +66,7 @@ score = scoreWith variationDist
 -- | Assuming a ciphertext is the result of exclusive-oring a plaintext with a single character key, 
 --   the 'mostLikelyChar' function guesses the most likely used character.
 mostLikelyChar :: BS.ByteString -> ((Word8, BS.ByteString), Double)
-mostLikelyChar = minCharWith score englishLetters
+mostLikelyChar = maxCharWith score englishLetters
 
 mostLikelyPair :: BS.ByteString -> (Word8, BS.ByteString)
 mostLikelyPair = fst . mostLikelyChar
