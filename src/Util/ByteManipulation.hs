@@ -1,6 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
-{-# OPTIONS_GHC -fno-warn-name-shadowing -fno-warn-unused-binds #-}
-{-# OPTIONS_GHC #-}
+{-# OPTIONS_GHC -fno-warn-unused-binds -fno-warn-unused-matches -fno-warn-name-shadowing #-}
 
 {- |
 Module: Util.ByteManipulation
@@ -227,7 +226,7 @@ meanHammingFracDist bss = fromIntegral dist / fromIntegral len
     where
         edit (_:[])        = 0
         edit []            = 0
-        edit (bs1:bs2:bss) = hammingDistanceBS bs1 bs2 + edit (bs2:bss)
+        edit (bs1:bs2:bs) = hammingDistanceBS bs1 bs2 + edit (bs2:bs)
 
         dist = edit bss
         len  = sum $ map (BS.length) bss

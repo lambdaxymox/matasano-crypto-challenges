@@ -1,3 +1,5 @@
+{-# OPTIONS_GHC -fno-warn-name-shadowing -fno-warn-unused-binds #-}
+
 module Crypto.FrequencyAnalysis
     (
         computeWordCounts,
@@ -6,19 +8,17 @@ module Crypto.FrequencyAnalysis
         searchForCharKeyWith,
         maxCharWith,
         minCharWith,
+        variationDist,
     )
     where
 
 import           Util.ByteManipulation
-import           Util.Hexadecimal
-import           Data.Maybe
 import qualified Data.ByteString                  as BS
-import qualified Data.ByteString.Char8            as BSC8
 import qualified Data.Map.Strict                  as Map
 import           Data.Word
-import           Data.List (maximumBy, minimumBy)
+import           Data.List                        (maximumBy, minimumBy)
 import qualified Data.List                        as L (map)
-import           Data.Char (chr, toUpper)
+import           Data.Char                        (toUpper)
 
 
 
@@ -27,7 +27,7 @@ computeWordCounts bs = BS.foldl update Map.empty bs
     where
         update table key = case Map.lookup (upper key) table of
             Nothing  -> Map.insert (upper key) 1 table
-            Just val -> Map.adjust (\val -> val+1) (upper key) table
+            Just _ -> Map.adjust (\val -> val+1) (upper key) table
 
         upper = c2w . toUpper . w2c
 
@@ -74,5 +74,14 @@ minCharWith :: (Floating a, Ord a) => (BS.ByteString -> a)
 minCharWith = searchForCharKeyWith minimumBy
 
 
---totalVariationDistance :: (Floating a, Ord a) => Map.Map Word8 a -> Map.Map Word8 a -> a
---totalVariationDistance ps qs = 
+-- | The 'variationDist' function calculates the variation distance between two probability distributions. The probability
+--   distribution Q with the smallest variation distance from P is in some sense the closest one to P.
+variationDist :: (Floating a, Ord a) => Map.Map Word8 a -> Map.Map Word8 a -> a
+variationDist ps qs =  Map.foldrWithKey variationDist' 0 qs
+    where
+        variationDist' key p acc = acc + term key p
+
+        term key p = case Map.lookup key ps of 
+            -- If value is not present, we don't count it.
+            Nothing -> 0.0 
+            Just q  -> abs (p - q)

@@ -1,4 +1,5 @@
 {-# LANGUAGE FlexibleInstances #-}
+{-# OPTIONS_GHC  -fno-warn-unused-binds #-}
 
 {- |
 Module: Util.Hexadecimal
@@ -18,14 +19,9 @@ module Util.Hexadecimal
     where
 
 import qualified Data.ByteString                                  as BS
-import qualified Data.ByteString.Base64                           as Base64
 import qualified Data.ByteString.Char8                            as BSC8
-import qualified Data.ByteString.Builder                          as BS
-import qualified Data.ByteString.Lazy                             as BSL
 import           Data.Word
 import           Data.Maybe
-import           Data.Monoid
-import qualified Data.Bits                                        as Bits (xor) 
 import           Data.Bits ((.|.))
 import           Text.Megaparsec (many, parseMaybe, hexDigitChar)
 import           Text.Printf
@@ -119,7 +115,7 @@ data HexDigits = HexDigits { hexDigits :: [HexDigit] }
 
 
 instance Show HexDigits where
-    show hex =  foldl (\acc d -> acc ++ show d) "0x" $ hexDigits hex
+    show hexVal =  foldl (\acc d -> acc ++ show d) "0x" $ hexDigits hexVal
 
 fromHexDigit :: HexDigit -> HexDigits
 fromHexDigit = HexDigits . return
@@ -141,7 +137,7 @@ instance HexRep [Word8] where
         where
             fromHexRep' acc []                   = acc
             fromHexRep' acc (digit:[])           = (lowerNibble digit .|. upperNibble Hex0) : acc
-            fromHexRep' acc (lower:upper:digits) = fromHexRep' ( (lowerNibble lower .|. upperNibble upper) : acc) digits
+            fromHexRep' acc (lower:upper:ds) = fromHexRep' ( (lowerNibble lower .|. upperNibble upper) : acc) ds
 
 
 -- | The 'ToHexadecimal' class is for producing hexadecimal string representations of data.
@@ -209,20 +205,20 @@ upperNibble d = case d of
 
 extractHexDigits :: String -> Maybe HexDigits
 extractHexDigits s = case (maybeHex s) of
-                    Just hex -> go hex
-                    Nothing  -> Nothing
+                    Just hexVal -> go hexVal
+                    Nothing     -> Nothing
     where
         maybeHex :: String -> Maybe String
         maybeHex = parseMaybe (many hexDigitChar)
 
         go :: String -> Maybe HexDigits
-        go s = fmap HexDigits $ sequence $ map (toHexDigit) s
+        go st = fmap HexDigits $ sequence $ map (toHexDigit) st
 
 
 -- | The 'maybeExtractHexBytes' function extracts raw hexadecimal digits from a string. 
 maybeExtractHexBytes :: String -> Maybe [Word8]
 maybeExtractHexBytes st = case (extractHexDigits st) of 
-                    Just hex -> fromHexRep hex
+                    Just hexVal -> fromHexRep hexVal
                     Nothing  -> Nothing
 
 

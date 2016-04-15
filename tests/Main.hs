@@ -8,7 +8,7 @@ import qualified System.Exit as Exit
 tests :: Test
 tests = TestList [
         TestLabel "Crypto.FrequencyAnalysis.English Tests" Test.Crypto.FrequencyAnalysis.English.tests,
-        TestLabel "Test.Util.ByteManipulation" Test.Util.ByteManipulation.tests
+        TestLabel "Test.Util.ByteManipulation Tests"       Test.Util.ByteManipulation.tests
     ]
 
 main = do count <- runTestTT tests 
