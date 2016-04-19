@@ -13,7 +13,7 @@ module Set1.Challenge6
     where
 
 import           Crypto.FrequencyAnalysis.English (mostLikelyWord8)
-import           Util.IO                          (readBS, sizedBlocks, unpaddedBlockCount, blocks)
+import           Util.IO                          (readBS, blocks)
 import           Util.ByteManipulation            (xorWithKey, meanHammingFracDist, transposeAll)
 import qualified Data.ByteString                  as BS
 import qualified Data.List                        as L (minimumBy, map)

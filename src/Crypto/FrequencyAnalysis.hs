@@ -5,11 +5,10 @@ module Crypto.FrequencyAnalysis
         computeWordCounts,
         relativeFreqs,
         scoreWith, 
-        searchForCharKeyWith,
-        maxCharWith,
-        minCharWith,
         variationDist,
         rawBytes,
+        transposeHistograms,
+        charMap,
     )
     where
 
@@ -18,7 +17,7 @@ import qualified Data.ByteString                  as BS
 import qualified Data.Map.Strict                  as Map
 import           Data.Word
 import           Data.List                        (maximumBy, minimumBy)
-import qualified Data.List                        as L (map)
+import qualified Data.List                        as L (map, sortOn, zipWith)
 import           Data.Char                        (toUpper)
 import           Data.Function                    (on)
 
@@ -50,32 +49,6 @@ scoreWith :: (Floating a, Ord a) => (Map.Map Word8 a -> a) -> BS.ByteString -> a
 scoreWith scoreFunc = scoreFunc . relativeFreqs
 
 
-searchForCharKeyWith :: (Floating a, Ord a) => ( (((Word8, BS.ByteString), a) -> ((Word8, BS.ByteString), a) -> Ordering) -> [((Word8, BS.ByteString), a)] -> ((Word8, BS.ByteString), a) )
-                                            -> (BS.ByteString -> a)
-                                            -> [Word8]
-                                            -> BS.ByteString 
-                                            -> ((Word8, BS.ByteString), a)
-searchForCharKeyWith searchFunc scoreFunc charSet st = 
-    searchFunc (compare `on` snd) scores
-        where
-            scores = L.map (\ch -> ((ch, st), scoreFunc $ cipherText ch st)) charSet
-            cipherText = xorWithChar
-
-
-maxCharWith :: (Floating a, Ord a) => (BS.ByteString -> a)
-                                      -> [Word8]
-                                      -> BS.ByteString 
-                                      -> ((Word8, BS.ByteString), a)
-maxCharWith = searchForCharKeyWith maximumBy
-
-
-minCharWith :: (Floating a, Ord a) => (BS.ByteString -> a)
-                                      -> [Word8]
-                                      -> BS.ByteString 
-                                      -> ((Word8, BS.ByteString), a)
-minCharWith = searchForCharKeyWith minimumBy
-
-
 rawBytes :: [Word8]
 rawBytes = [0x00..0xFF]
 
@@ -90,3 +63,19 @@ variationDist ps =  Map.foldrWithKey variationDist' 0
             -- If value is not present, we don't count it.
             Nothing -> 0.0 
             Just q  -> abs (p - q)
+
+
+transposeHistograms :: (Floating a, Ord a) => Map.Map Word8 a -> Map.Map Word8 a -> Map.Map Word8 a
+transposeHistograms reference freqs = Map.fromList $ L.zipWith zipper newFreqs referenceTable
+    where
+        newFreqs           = L.sortOn snd $ Map.toList freqs
+        referenceTable     = L.sortOn snd $ Map.toList reference
+        zipper pair1 pair2 = (fst pair1, snd pair2)
+
+
+charMap :: (Floating a, Ord a) => Map.Map Word8 a -> Map.Map Word8 a -> Map.Map Word8 Word8
+charMap reference freqs = Map.fromList $ L.zipWith zipper newFreqs referenceTable 
+    where
+        newFreqs           = L.sortOn snd $ Map.toList freqs
+        referenceTable     = L.sortOn snd $ Map.toList reference
+        zipper pair1 pair2 = (fst pair1, fst pair2)

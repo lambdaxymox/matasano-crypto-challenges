@@ -17,8 +17,8 @@ test1 = TestCase $ do
                     let plainText  = B8.pack "I am regularly asked what the average Internet user can do to ensure his security. My first answer is usually 'Nothing; you're screwed'."
                     let ch         = c2w 'X'
                     let cipherText = xorWithChar ch plainText
-                    let (guessedChar, guessedCipherText) = mostLikelyPair cipherText
-                    let guessedPlainText = xorWithChar ch guessedCipherText
+                    let guessedChar = fst . fst . mostLikelyChar $ cipherText
+                    let guessedPlainText = xorWithChar ch cipherText
                     let failStr = "Guessed wrong character:\n" 
                                         ++ "Guess: "  ++ show guessedChar ++ "\n"
                                         ++ "Answer: " ++ show ch 

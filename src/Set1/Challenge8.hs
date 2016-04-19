@@ -15,7 +15,7 @@ module Set1.Challenge8
     where
 
 import           Util.IO                             (getKPaddedBlocks, readLines, blocks)
-import           Crypto.FrequencyAnalysis.English    (mostLikelyWord8C, mostLikelyWord8, cipherScore, score)
+import           Crypto.FrequencyAnalysis.English    (mostLikelyWord8, score)
 import qualified Data.List                           as L
 import qualified Data.ByteString.Char8               as BSC8
 import           Data.ByteString.Base64              as Base64
@@ -51,7 +51,7 @@ guessedKeySize :: Int
 guessedKeySize = 16
 
 cipherTextBlocks :: BS.ByteString -> [BS.ByteString]
-cipherTextBlocks st = transposeAll guessedKeySize st
+cipherTextBlocks = transposeAll guessedKeySize
 
 guessedKey :: IO BS.ByteString
 guessedKey = guessKey <$> guessedCipherText
