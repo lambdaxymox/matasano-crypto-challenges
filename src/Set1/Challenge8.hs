@@ -1,23 +1,21 @@
 module Set1.Challenge8
     (
         secrets,
-        mostProbableKeySize,
         guessedKey,
         cipherTextBlocks,
         guessKeySize,
+        guessKey,
         guessKeySizeN,
         guessedKeySize,
         guessedKey,
         guessedCipherText,
         guessedPlainText,
-        keySizes,
         challenge8,
     )
     where
 
-import           Util.IO                             (getKPaddedBlocks, readLines)
-import           Crypto.FrequencyAnalysis.English    (mostLikelyWord8, cipherScore, score)
-import           Util.Util                           (right)
+import           Util.IO                             (getKPaddedBlocks, readLines, blocks)
+import           Crypto.FrequencyAnalysis.English    (mostLikelyWord8C, mostLikelyWord8, cipherScore, score)
 import qualified Data.List                           as L
 import qualified Data.ByteString.Char8               as BSC8
 import           Data.ByteString.Base64              as Base64
@@ -35,9 +33,6 @@ import           Util.Hexadecimal                    (extractHexBytes)
 secrets :: IO [BS.ByteString]
 secrets = L.map (BS.pack . extractHexBytes . BSC8.unpack) <$> readLines "Set1/ex8.txt"
 
-blocks :: Int -> Int -> BS.ByteString -> [BS.ByteString]
-blocks k keySize bs = right $ getKPaddedBlocks k keySize bs
-
 guessKeySizeN :: Int -> [Int] -> BS.ByteString -> Int
 guessKeySizeN n keySizes bs = L.minimumBy (compare `on` fracDist) keySizes
     where
@@ -52,17 +47,11 @@ guessKey = BS.pack . L.map (fst . fst . mostLikelyWord8) . cipherTextBlocks
 guessCipherText :: [BS.ByteString] -> BS.ByteString
 guessCipherText strings = L.maximumBy (compare `on` score) strings
 
-keySizes :: [Int]
-keySizes = [16]
-
-mostProbableKeySize :: BS.ByteString -> Int
-mostProbableKeySize = guessKeySize keySizes
+guessedKeySize :: Int
+guessedKeySize = 16
 
 cipherTextBlocks :: BS.ByteString -> [BS.ByteString]
-cipherTextBlocks st = transposeAll (mostProbableKeySize st) st
-
-guessedKeySize :: IO Int
-guessedKeySize = return 16
+cipherTextBlocks st = transposeAll guessedKeySize st
 
 guessedKey :: IO BS.ByteString
 guessedKey = guessKey <$> guessedCipherText

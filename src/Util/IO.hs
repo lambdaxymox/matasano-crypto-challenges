@@ -6,13 +6,15 @@ module Util.IO
         exactlyKSizedBlocks,
         getKPaddedBlocks,
         unpaddedBlockCount,
+        blocks,
     )
     where
 
-import qualified Data.ByteString       as BS
-import           Util.ByteManipulation (bslines, padding)
+import qualified Data.ByteString         as BS
+import           Util.ByteManipulation   (bslines, padding)
 import           System.IO
 import           Data.Monoid
+import           Util.Util               (right)
 
 
 readLines :: String -> IO [BS.ByteString]
@@ -86,3 +88,7 @@ getKPaddedBlocks k size st
 
 unpaddedBlockCount :: Int -> BS.ByteString -> Int
 unpaddedBlockCount size st = BS.length st `div` size
+
+
+blocks :: Int -> Int -> BS.ByteString -> [BS.ByteString]
+blocks k keySize bs = right $ getKPaddedBlocks k keySize bs

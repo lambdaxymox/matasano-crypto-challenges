@@ -13,8 +13,7 @@ module Set1.Challenge6
     where
 
 import           Crypto.FrequencyAnalysis.English (mostLikelyWord8)
-import           Util.Util                        (right)
-import           Util.IO                          (getKPaddedBlocks, readBS, sizedBlocks, unpaddedBlockCount)
+import           Util.IO                          (readBS, sizedBlocks, unpaddedBlockCount, blocks)
 import           Util.ByteManipulation            (xorWithKey, meanHammingFracDist, transposeAll)
 import qualified Data.ByteString                  as BS
 import qualified Data.List                        as L (minimumBy, map)
@@ -26,9 +25,6 @@ import           Data.ByteString.Char8            as BSC8
 
 secret :: IO BS.ByteString
 secret = Base64.decodeLenient <$> readBS "Set1/ex6.txt"
-
-blocks :: Int -> Int -> BS.ByteString -> [BS.ByteString]
-blocks k keySize bs = right $ getKPaddedBlocks k keySize bs
 
 guessKeySizeN :: Int -> [Int] -> BS.ByteString -> Int
 guessKeySizeN n keySizes bs = L.minimumBy (compare `on` fracDist) keySizes
@@ -50,19 +46,16 @@ cipherTextBlocks = transposeAll <$> mostProbableKeySize <*> secret
 guessedKey :: IO BS.ByteString
 guessedKey = BS.pack <$> (L.map (fst . fst . mostLikelyWord8) <$> cipherTextBlocks)
 
-unSecret :: IO BS.ByteString
-unSecret = xorWithKey <$> secret <*> guessedKey
-
-answerKey :: BS.ByteString
-answerKey = BSC8.pack "Terminator X: Bring the noise"
+guessedPlainText :: IO BS.ByteString
+guessedPlainText = xorWithKey <$> secret <*> guessedKey
 
 -- | Challenge 6
 
 -- This is just practice translating do notation. It is equivalent to challenge6.
-challenge6' = guessedKey >>= \key -> unSecret >>= \plainText -> return (key, plainText)
+challenge6' = guessedKey >>= \key -> guessedPlainText >>= \plainText -> return (key, plainText)
 
 challenge6 :: IO (BS.ByteString, BS.ByteString)
 challenge6 = do
     key       <- guessedKey
-    plainText <- unSecret
+    plainText <- guessedPlainText
     return (key, plainText)

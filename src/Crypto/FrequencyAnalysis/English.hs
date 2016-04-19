@@ -6,6 +6,7 @@ module Crypto.FrequencyAnalysis.English
         mostLikelyChar,
         mostLikelyPair,
         mostLikelyWord8,
+        mostLikelyWord8C,
         cipherScore,
     )
     where
@@ -99,3 +100,6 @@ mostLikelyPair = fst . mostLikelyChar
 
 mostLikelyWord8 :: BS.ByteString -> ((Word8, BS.ByteString), Double)
 mostLikelyWord8 = maxCharWith score rawBytes
+
+mostLikelyWord8C :: BS.ByteString -> ((Word8, BS.ByteString), Double)
+mostLikelyWord8C = maxCharWith cipherScore rawBytes
