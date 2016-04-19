@@ -7,6 +7,7 @@ module Set1
         module Challenge5,
         module Challenge6,
         module Challenge7,
+        module Challenge8,
     )
     where
 
@@ -17,5 +18,6 @@ import qualified Set1.Challenge4 as Challenge4
 import qualified Set1.Challenge5 as Challenge5
 import qualified Set1.Challenge6 as Challenge6 
 import qualified Set1.Challenge7 as Challenge7
+import qualified Set1.Challenge8 as Challenge8
 
 import Util.ByteManipulation

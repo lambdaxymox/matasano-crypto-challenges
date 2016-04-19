@@ -6,6 +6,7 @@ module Crypto.FrequencyAnalysis.English
         mostLikelyChar,
         mostLikelyPair,
         mostLikelyWord8,
+        cipherScore,
     )
     where
 
@@ -15,6 +16,7 @@ import           Crypto.FrequencyAnalysis
 import           Data.Map                                 as Map
 import           Util.ByteManipulation                    (c2w)
 import           Data.Word
+import qualified Data.List                                as L (sortOn, zipWith)
 
 
 frequencyTable :: Map.Map Char Double
@@ -37,6 +39,10 @@ frequencyTableW8 = Map.fromList [
         (c2w 'Q', 0.00095), (c2w 'Z', 0.00074)
     ]
 
+sortedEnglishTable :: [(Word8, Double)]
+sortedEnglishTable = L.sortOn snd $ toList frequencyTableW8
+
+
 englishLetters :: [Word8]
 englishLetters = BS.unpack $ BSC8.pack "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
 
@@ -53,11 +59,35 @@ scoreFunc = Map.foldrWithKey scoreFunc' 0.0
             Just q  -> q
 
 
+-- | The 'cipherScoreFunc' functions looks for the most English-looking cipher-text using frequency analysis. It guesses
+--   that the ciphertext was encoded using a substitution cipher so the bytes that occur in the cipher-text can be compareds to
+--   the bytes that occur in English by relative frequency.  
+cipherScoreFunc :: Map.Map Word8 Double -> Double
+cipherScoreFunc freqs = Map.foldrWithKey scoreFunc' 0.0 newFreqs 
+    where
+        newFreqs = mkCipherScoreFunc freqs
+
+        scoreFunc' k _ acc = acc + term k
+
+        term k = case Map.lookup k newFreqs of
+            Nothing -> 0.0
+            Just q  -> q
+
+mkCipherScoreFunc :: Map.Map Word8 Double -> Map.Map Word8 Double
+mkCipherScoreFunc freqs = fromList $ L.zipWith zipper sortedEnglishTable newFreqs 
+    where
+        newFreqs = L.sortOn snd $ toList freqs
+
+        zipper pair1 pair2 = (fst pair1, snd pair2)
+
 -- | The 'score' function calculates the variance of a string with respect to the English language
 --   frequency table.
 score :: BS.ByteString -> Double
 score = scoreWith scoreFunc
 
+-- | The 'cipherScore' function 
+cipherScore :: BS.ByteString -> Double
+cipherScore = scoreWith cipherScoreFunc
 
 -- | Assuming a ciphertext is the result of exclusive-oring a plaintext with a single character key, 
 --   the 'mostLikelyChar' sfunction guesses the most likely used character.
