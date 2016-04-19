@@ -3,9 +3,11 @@ module Crypto.FrequencyAnalysis.BreakXorCipher
         breakXorCharKeyWith,
         breakXorKeyWith,
         score,
+        guessKeySizeN,
     )
     where
 
+import           Util.IO                     (blocks)
 import           Util.ByteManipulation
 import qualified Data.ByteString             as BS
 import           Data.Map                    as Map
@@ -58,5 +60,19 @@ breakXorCharKeyWith :: (Floating a, Ord a) => Map.Map Word8 a
                                            -> ((Word8, BS.ByteString), a)
 breakXorCharKeyWith model charSet st = maxCharWith (score model) charSet st
 
-breakXorKeyWith :: Map.Map Word8 Double -> BS.ByteString -> BS.ByteString
-breakXorKeyWith model st = BS.empty
+
+breakXorKeyWith :: (Floating a, Ord a) => Map.Map Word8 a 
+                                       -> [Word8]
+                                       -> Int 
+                                       -> BS.ByteString 
+                                       -> BS.ByteString
+breakXorKeyWith model charSet keySize st = BS.pack $ L.map extract cipherTextBlocks
+    where
+        extract          = fst . fst . breakXorCharKeyWith model charSet
+        cipherTextBlocks = transposeAll keySize st
+
+
+guessKeySizeN :: Int -> [Int] -> BS.ByteString -> Int
+guessKeySizeN n keySizes bs = L.minimumBy (compare `on` fracDist) keySizes
+    where
+        fracDist keySize = meanHammingFracDist $ blocks n keySize bs

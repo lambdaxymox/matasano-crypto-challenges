@@ -3,6 +3,7 @@ module Crypto.FrequencyAnalysis.English
         frequencyTable,
         mostLikelyChar,
         mostLikelyWord8,
+        mostLikelyXorKey,
         score,
     )
     where
@@ -65,3 +66,6 @@ mostLikelyChar st = Xor.breakXorCharKeyWith frequencyTable englishLetters st
 
 mostLikelyWord8 :: BS.ByteString -> ((Word8, BS.ByteString), Double)
 mostLikelyWord8 st = Xor.breakXorCharKeyWith frequencyTable rawBytes st
+
+mostLikelyXorKey :: Int -> BS.ByteString -> BS.ByteString
+mostLikelyXorKey keySize st = Xor.breakXorKeyWith frequencyTable rawBytes keySize st

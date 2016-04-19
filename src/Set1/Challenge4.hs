@@ -2,7 +2,6 @@ module Set1.Challenge4
     (
         secret,
         challenge4,
-        plainText,
         cipherText,
         answer,
     )
@@ -34,15 +33,12 @@ obtain strings = fst $ L.maximumBy (compare `on` snd) $ scores strings
 cipherText :: IO (Word8, BS.ByteString)
 cipherText = obtain <$> secret
 
-plainText :: IO (Word8, BS.ByteString)
-plainText = do
-    (ch, st)  <- cipherText
-    let hexSt = xorWithChar ch st
-    return (ch, hexSt)
-
 answer :: (Word8, BS.ByteString)
 answer = (53, BSC8.pack "Now that the party is jumping\n")
 
 -- | Challenge 4
 challenge4 :: IO (Word8, BS.ByteString)
-challenge4 = plainText
+challenge4 = do
+    (ch, st)  <- cipherText
+    let plainText = xorWithChar ch st
+    return (ch, plainText)

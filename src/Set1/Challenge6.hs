@@ -1,35 +1,29 @@
 module Set1.Challenge6
     (
         secret,
-        mostProbableKeySize,
+        guessedKeySize,
         guessedKey,
-        cipherTextBlocks,
         guessKeySize,
-        guessKeySizeN,
         keySizes,
         challenge6,
 
     )
     where
 
-import           Crypto.FrequencyAnalysis.English (mostLikelyWord8)
-import           Util.IO                          (readBS, blocks)
-import           Util.ByteManipulation            (xorWithKey, meanHammingFracDist, transposeAll)
-import qualified Data.ByteString                  as BS
-import qualified Data.List                        as L (minimumBy, map)
+import           Crypto.FrequencyAnalysis.English        (mostLikelyXorKey)
+import           Crypto.FrequencyAnalysis.BreakXorCipher (guessKeySizeN)
+import           Util.IO                                 (readBS, blocks)
+import           Util.ByteManipulation                   (xorWithKey)
+import qualified Data.ByteString                         as BS
+import qualified Data.List                               as L (minimumBy, map)
 import           Data.Monoid
-import           Data.Function                    (on)
-import           Data.ByteString.Base64           as Base64
-import           Data.ByteString.Char8            as BSC8
+import           Data.Function                           (on)
+import           Data.ByteString.Base64                  as Base64
+import           Data.ByteString.Char8                   as BSC8
 
 
 secret :: IO BS.ByteString
 secret = Base64.decodeLenient <$> readBS "Set1/ex6.txt"
-
-guessKeySizeN :: Int -> [Int] -> BS.ByteString -> Int
-guessKeySizeN n keySizes bs = L.minimumBy (compare `on` fracDist) keySizes
-    where
-        fracDist keySize = meanHammingFracDist $ blocks n keySize bs
 
 guessKeySize :: [Int] -> BS.ByteString -> Int
 guessKeySize = guessKeySizeN 10
@@ -37,14 +31,11 @@ guessKeySize = guessKeySizeN 10
 keySizes :: [Int]
 keySizes = [2..40]
 
-mostProbableKeySize :: IO Int
-mostProbableKeySize = guessKeySize keySizes <$> secret
-
-cipherTextBlocks :: IO [BS.ByteString]
-cipherTextBlocks = transposeAll <$> mostProbableKeySize <*> secret
+guessedKeySize :: IO Int
+guessedKeySize = guessKeySize keySizes <$> secret
 
 guessedKey :: IO BS.ByteString
-guessedKey = BS.pack <$> (L.map (fst . fst . mostLikelyWord8) <$> cipherTextBlocks)
+guessedKey = mostLikelyXorKey <$> guessedKeySize <*> secret
 
 guessedPlainText :: IO BS.ByteString
 guessedPlainText = xorWithKey <$> secret <*> guessedKey
