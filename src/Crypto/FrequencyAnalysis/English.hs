@@ -62,10 +62,10 @@ score = Xor.score frequencyTable
 -- | Assuming a ciphertext is the result of exclusive-oring a plaintext with a single character key, 
 --   the 'mostLikelyChar' function guesses the most likely used character.
 mostLikelyChar :: BS.ByteString -> ((Word8, BS.ByteString), Double)
-mostLikelyChar st = Xor.breakXorCharKeyWith frequencyTable englishLetters st
+mostLikelyChar = Xor.breakXorCharKeyWith frequencyTable englishLetters
 
 mostLikelyWord8 :: BS.ByteString -> ((Word8, BS.ByteString), Double)
-mostLikelyWord8 st = Xor.breakXorCharKeyWith frequencyTable rawBytes st
+mostLikelyWord8 = Xor.breakXorCharKeyWith frequencyTable rawBytes
 
 mostLikelyXorKey :: Int -> BS.ByteString -> BS.ByteString
-mostLikelyXorKey keySize st = Xor.breakXorKeyWith frequencyTable rawBytes keySize st
+mostLikelyXorKey keySize = Xor.breakXorKeyWith frequencyTable rawBytes keySize

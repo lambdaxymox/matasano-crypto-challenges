@@ -1,7 +1,7 @@
 module Crypto
     (
         module Crypto.FrequencyAnalysis,
-        module Crypto.FrequencyAnalysis.English
+        module Crypto.FrequencyAnalysis.English,
         module Crypto.FrequencyAnalysis.BreakXorCipher
     )
     where

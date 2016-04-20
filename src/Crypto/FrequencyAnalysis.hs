@@ -22,7 +22,6 @@ import           Data.Char                        (toUpper)
 import           Data.Function                    (on)
 
 
-
 computeWordCounts :: Integral a => BS.ByteString -> Map.Map Word8 a
 computeWordCounts = BS.foldl update Map.empty
     where

@@ -58,7 +58,7 @@ breakXorCharKeyWith :: (Floating a, Ord a) => Map.Map Word8 a
                                            -> [Word8] 
                                            -> BS.ByteString 
                                            -> ((Word8, BS.ByteString), a)
-breakXorCharKeyWith model charSet st = maxCharWith (score model) charSet st
+breakXorCharKeyWith model = maxCharWith (score model)
 
 
 breakXorKeyWith :: (Floating a, Ord a) => Map.Map Word8 a 
