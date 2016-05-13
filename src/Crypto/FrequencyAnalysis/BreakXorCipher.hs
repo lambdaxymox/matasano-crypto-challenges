@@ -37,7 +37,7 @@ minCharWith scoreFunc charSet st = L.minimumBy (compare `on` snd) scores
         cipherText = xorWithChar
 
 
--- | The 'scoreFunc' function simply adds up the relative frequency that each character in a string with respect
+-- | The 'scoreFunc' function simply adds up the relative frequency of each character in a string with respect
 --   to a statistical model of the plaintext language.
 scoreFunc :: (Floating a, Ord a) => Map.Map Word8 a -> Map.Map Word8 a -> a
 scoreFunc model = Map.foldrWithKey scoreFunc' 0.0
@@ -49,7 +49,7 @@ scoreFunc model = Map.foldrWithKey scoreFunc' 0.0
             Just p  -> p
 
 -- | The 'score' function scores a string with respect to the underlying statistical model
---   of the langauge of the plaintext.
+--   of the language of the plaintext.
 score :: (Floating a, Ord a) => Map.Map Word8 a -> BS.ByteString -> a
 score model = scoreWith $ scoreFunc model 
 
