@@ -48,7 +48,7 @@ scoreFunc model = Map.foldrWithKey scoreFunc' 0.0
             Nothing -> 0.0
             Just p  -> p
 
--- | The 'score' function scores a string with respect to the underlying statical model
+-- | The 'score' function scores a string with respect to the underlying statistical model
 --   of the langauge of the plaintext.
 score :: (Floating a, Ord a) => Map.Map Word8 a -> BS.ByteString -> a
 score model = scoreWith $ scoreFunc model 
