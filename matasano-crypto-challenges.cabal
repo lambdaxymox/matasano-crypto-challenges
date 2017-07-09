@@ -6,8 +6,8 @@ version:             0.1.0.0
 synopsis:            Solutions to the Matasano crypto challenges.            
 description:         This is a collection of solutions to the Matasano crypto challenges. They can
                      be found at http://cryptopals.com/.
-license:             BSD3             
-license-file:        LICENSE
+license:             Apache-2.0             
+license-file:        LICENSE-APACHE
 author:              Stallmanifold
 maintainer:          stallmanifold@gmail.com
 copyright:           2016           
