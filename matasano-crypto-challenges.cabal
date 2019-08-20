@@ -8,8 +8,8 @@ description:         This is a collection of solutions to the Matasano crypto ch
                      be found at http://cryptopals.com/.
 license:             Apache-2.0             
 license-file:        LICENSE-APACHE
-author:              Stallmanifold
-maintainer:          stallmanifold@gmail.com
+author:              LambdaXymox
+maintainer:          lambda.xymox@gmail.com
 copyright:           2016           
 -- category:            
 build-type:          Simple
@@ -48,4 +48,4 @@ test-suite tests
 
 source-repository head
   type:     git
-  location: git://github.com/stallmanifold/matasano-crypto-challenges.git
+  location: git://github.com/lambdaxymox/matasano-crypto-challenges.git
